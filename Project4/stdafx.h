@@ -19,3 +19,9 @@
 
 
 // TODO: reference additional headers your program requires here
+#include "Project4.h"
+#include "d3d11.h"
+#include "PixelShader.csh"
+#include "VertexShader.csh"
+#include <DirectXColors.h>
+#include <DirectXMath.h>

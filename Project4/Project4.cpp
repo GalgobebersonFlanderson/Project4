@@ -3,8 +3,6 @@
 
 #include "stdafx.h"
 #include "Project4.h"
-#include "d3d11.h"
-#include <DirectXColors.h>
 
 #pragma comment(lib, "d3d11.lib")
 
@@ -12,14 +10,45 @@
 #define BufferWidth 1000
 #define BufferHeight 950
 
+// Structures
+struct Vertex
+{
+	DirectX::XMFLOAT4 pos;
+	DirectX::XMFLOAT4 normals;
+	DirectX::XMFLOAT2 uv;
+};
+
+struct SEND_TO_VRAM
+{
+	DirectX::XMFLOAT2 constantOffset;
+	DirectX::XMFLOAT2 padding;
+};
+
+// Struct Inits
+SEND_TO_VRAM toVertShader;
+
 // Global DirectX Variables
 ID3D11Device*				m_pDevice = nullptr;
 ID3D11DeviceContext*		m_pContext = nullptr;
 ID3D11RenderTargetView*		m_pRtv = nullptr;
 IDXGISwapChain*				m_pSwapChain = nullptr;
+ID3D11InputLayout*			m_pInputLayout = nullptr;
 D3D_DRIVER_TYPE				m_DriverType;
 D3D_FEATURE_LEVEL			m_FeatureLevel;
 D3D11_VIEWPORT				m_ViewPort;
+
+//DirectX Buffers
+ID3D11Buffer*				m_pVertexBuffer = nullptr;
+ID3D11Buffer*				m_pConstBuffer = nullptr;
+
+//DirectX Shaders
+ID3D11VertexShader*			m_pVertexShader = nullptr;
+ID3D11PixelShader*			m_pPixelShader = nullptr;
+
+//Resources
+ID3D11Resource*				m_pResource = nullptr;
+ID3D11Texture2D*			m_pBackBufferTexture = nullptr;
+
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
@@ -101,8 +130,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		}
 	}
 
+	// Create Shaders
+	m_pDevice->CreateVertexShader(VertexShader, sizeof(VertexShader), NULL, &m_pVertexShader);
+	m_pDevice->CreatePixelShader(PixelShader, sizeof(PixelShader), NULL, &m_pPixelShader);
+	
+	D3D11_INPUT_ELEMENT_DESC vertexShaderLayout[] = 
+	{
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"NORMALS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"UVs", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	};
+	
+	// Create input layout
+	m_pDevice->CreateInputLayout(vertexShaderLayout, 3, VertexShader, sizeof(VertexShader), &m_pInputLayout);
+
 	// Create RTV
-	ID3D11Texture2D*	m_pBackBufferTexture = 0;
 	m_pSwapChain->GetBuffer(NULL, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&m_pBackBufferTexture));
 	m_pDevice->CreateRenderTargetView(m_pBackBufferTexture, nullptr, &m_pRtv);
 
@@ -121,7 +163,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	m_pContext->RSSetViewports(1, &m_ViewPort);
 
 	// Clearing RTV
-	m_pContext->ClearRenderTargetView(m_pRtv, DirectX::Colors::White);
+	m_pContext->ClearRenderTargetView(m_pRtv, DirectX::Colors::Black);
 
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_PROJECT4));
 
@@ -144,6 +186,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	if (m_pDevice) m_pDevice->Release();
 	if (m_pRtv) m_pRtv->Release();
 	if (m_pSwapChain) m_pSwapChain->Release();
+	if (m_pPixelShader) m_pPixelShader->Release();
+	if (m_pVertexShader) m_pVertexShader->Release();
+	if (m_pVertexBuffer) m_pVertexBuffer->Release();
+	if (m_pResource) m_pResource->Release();
+	if (m_pConstBuffer) m_pConstBuffer->Release();
 
     return (int) msg.wParam;
 }
