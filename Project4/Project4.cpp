@@ -10,24 +10,18 @@
 #define BufferWidth 1000
 #define BufferHeight 950
 
-// Structures
-struct Vertex
-{
-	DirectX::XMFLOAT4 pos;
-	DirectX::XMFLOAT4 normals;
-	DirectX::XMFLOAT2 uv;
-};
+// Math Variables
+DirectX::XMMATRIX			g_worldMatrix;
+DirectX::XMMATRIX			g_viewMatrix;
+DirectX::XMMATRIX			g_projectionMatrix;
 
-struct SEND_TO_VRAM
-{
-	DirectX::XMFLOAT2 constantOffset;
-	DirectX::XMFLOAT2 padding;
-};
+// Variables
+int vertCount = 0;
 
-// Struct Inits
-SEND_TO_VRAM toVertShader;
+// Struct Defines
+Vertex	cubeVerts[8];
 
-// Global DirectX Variables
+// DirectX Variables
 ID3D11Device*				m_pDevice = nullptr;
 ID3D11DeviceContext*		m_pContext = nullptr;
 ID3D11RenderTargetView*		m_pRtv = nullptr;
@@ -37,11 +31,12 @@ D3D_DRIVER_TYPE				m_DriverType;
 D3D_FEATURE_LEVEL			m_FeatureLevel;
 D3D11_VIEWPORT				m_ViewPort;
 
-//DirectX Buffers
+//DirectX Buffer Stuff
 ID3D11Buffer*				m_pVertexBuffer = nullptr;
+ID3D11Buffer*				m_pIndexBuffer = nullptr;
 ID3D11Buffer*				m_pConstBuffer = nullptr;
 
-//DirectX Shaders
+//DirectX Shader Stuff
 ID3D11VertexShader*			m_pVertexShader = nullptr;
 ID3D11PixelShader*			m_pPixelShader = nullptr;
 
@@ -80,6 +75,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         return FALSE;
     }
+
+	// Vert setups
+	Vertex platformVerts[6];
 
 	// Initialize DirectX11
 	D3D_DRIVER_TYPE driverTypes[] =
@@ -191,6 +189,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
 	if (m_pResource) m_pResource->Release();
 	if (m_pConstBuffer) m_pConstBuffer->Release();
+	if (m_pIndexBuffer) m_pIndexBuffer->Release();
 
     return (int) msg.wParam;
 }

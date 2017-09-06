@@ -33,12 +33,18 @@
     <ClInclude Include="Project4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="UsefulStuff.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Project4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UsefulStuff.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

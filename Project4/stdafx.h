@@ -25,3 +25,16 @@
 #include "VertexShader.csh"
 #include <DirectXColors.h>
 #include <DirectXMath.h>
+
+// Structures
+struct Vertex
+{
+	DirectX::XMFLOAT4 pos;
+	DirectX::XMFLOAT4 normals;
+	DirectX::XMFLOAT2 uv;
+};
+
+struct RectF
+{
+	float top, left, bottom, right;
+};
