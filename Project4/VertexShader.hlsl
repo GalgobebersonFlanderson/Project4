@@ -1,28 +1,35 @@
+cbuffer MatrixBuffer
+{
+	matrix worldMatrix;
+	matrix viewMatrix;
+	matrix projectionMatrix;
+};
+
 struct INPUT_VERTEX
 {
-	float4 coordinate : POSITION;
-	float4 normals : NORMALS;
-	float2 uv : UVs;
+	float4 position : POSITION;
+	float4 normal : NORMAL;
+	float2 uv : UV;
 };
 
 struct OUTPUT_VERTEX
 {
-	float4 projectedCoordinate : SV_POSITION;
-	float4 normals : NORMALS;
-	float2 uv : UVs;
+	float4 position : SV_POSITION;
+	float4 normal : NORMAL;
+	float2 uv : UV;
 };
 
-cbuffer THIS_IS_VRAM : register(b0)
+OUTPUT_VERTEX main(INPUT_VERTEX input)
 {
-	float2 constantOffset;
-	float2 padding;
-};
+	OUTPUT_VERTEX output;
 
-OUTPUT_VERTEX main(INPUT_VERTEX fromVertexBuffer)
-{
-	OUTPUT_VERTEX sendToRasterizer = (OUTPUT_VERTEX)0;
-	sendToRasterizer.projectedCoordinate.w = 1;
-	sendToRasterizer.projectedCoordinate.xy = fromVertexBuffer.coordinate.xy;
-	sendToRasterizer.projectedCoordinate.xy += constantOffset;
-	return sendToRasterizer;
+	input.position.w = 1.0f;
+
+	output.position = mul(input.position, worldMatrix);
+	output.position = mul(input.position, viewMatrix);
+	output.position = mul(input.position, projectionMatrix);
+
+	output.normal = input.normal;
+	output.uv = input.uv;
+	return output;
 }

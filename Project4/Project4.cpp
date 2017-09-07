@@ -13,21 +13,15 @@
 // Structures
 struct Vertex
 {
-	DirectX::XMFLOAT4 pos;
-	DirectX::XMFLOAT4 normals;
+	DirectX::XMFLOAT4 position;
+	DirectX::XMFLOAT4 normal;
 	DirectX::XMFLOAT2 uv;
 };
 
-struct SEND_TO_VRAM
-{
-	DirectX::XMFLOAT2 constantOffset;
-	DirectX::XMFLOAT2 padding;
-};
+// Struct defines
+Vertex platformVerts[6];
 
-// Struct Inits
-SEND_TO_VRAM toVertShader;
-
-// Global DirectX Variables
+// Global DirectX variables
 ID3D11Device*				m_pDevice = nullptr;
 ID3D11DeviceContext*		m_pContext = nullptr;
 ID3D11RenderTargetView*		m_pRtv = nullptr;
@@ -37,11 +31,11 @@ D3D_DRIVER_TYPE				m_DriverType;
 D3D_FEATURE_LEVEL			m_FeatureLevel;
 D3D11_VIEWPORT				m_ViewPort;
 
-//DirectX Buffers
+//DirectX buffers
 ID3D11Buffer*				m_pVertexBuffer = nullptr;
 ID3D11Buffer*				m_pConstBuffer = nullptr;
 
-//DirectX Shaders
+//DirectX shaders
 ID3D11VertexShader*			m_pVertexShader = nullptr;
 ID3D11PixelShader*			m_pPixelShader = nullptr;
 
@@ -50,7 +44,7 @@ ID3D11Resource*				m_pResource = nullptr;
 ID3D11Texture2D*			m_pBackBufferTexture = nullptr;
 
 
-// Global Variables:
+// Global variables:
 HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
@@ -130,15 +124,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		}
 	}
 
-	// Create Shaders
+	// Create shaders
 	m_pDevice->CreateVertexShader(VertexShader, sizeof(VertexShader), NULL, &m_pVertexShader);
 	m_pDevice->CreatePixelShader(PixelShader, sizeof(PixelShader), NULL, &m_pPixelShader);
 	
+	// Setup layout
 	D3D11_INPUT_ELEMENT_DESC vertexShaderLayout[] = 
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"NORMALS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"UVs", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 	
 	// Create input layout
@@ -151,7 +146,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	// Binding RTV
 	m_pContext->OMSetRenderTargets(1, &m_pRtv, nullptr);
 
-	// Create Viewport
+	// Create viewport
 	m_ViewPort.Width = static_cast<float>(BufferWidth);
 	m_ViewPort.Height = static_cast<float>(BufferHeight);
 	m_ViewPort.TopLeftX = 0;
@@ -159,7 +154,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	m_ViewPort.MinDepth = 0.0f;
 	m_ViewPort.MaxDepth = 1.0f;
 
-	// Binding Viewport
+	// Binding viewport
 	m_pContext->RSSetViewports(1, &m_ViewPort);
 
 	// Clearing RTV
@@ -172,11 +167,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Main message loop:
     while (GetMessage(&msg, nullptr, 0, 0))
     {
+		// Window stuff
         if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+
+		// Display stuff on screen
 		m_pSwapChain->Present(0, 0);
     }
 
