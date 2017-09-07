@@ -1,9 +1,10 @@
 #pragma once
+
 class UsefulStuff
 {
 public:
 	UsefulStuff();
 	~UsefulStuff();
-	void GenerateCubeVertsAndIndices(Vertex _vertsArr[], int _vertCount, float _depthRange, RectF _rectF, int _indArr[]);
+	void GenerateCubeVertsAndIndices(Vertex _vertsArr[24], float _depthRange, RectF _rect, int _indArr[36]);
 };
 

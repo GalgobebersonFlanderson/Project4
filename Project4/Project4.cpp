@@ -10,16 +10,15 @@
 #define BufferWidth 1000
 #define BufferHeight 950
 
-// Structures
-struct Vertex
-{
-	DirectX::XMFLOAT4 position;
-	DirectX::XMFLOAT4 normal;
-	DirectX::XMFLOAT2 uv;
-};
+// Generic Variables
+UsefulStuff					utility;
+int							cubeInd[36];
 
 // Struct defines
-Vertex platformVerts[6];
+Vertex						platformVerts[6];
+RectF						cubeRect;
+// Struct defines
+Vertex						cubeVerts[24];
 
 // Global DirectX variables
 ID3D11Device*				m_pDevice = nullptr;
@@ -74,6 +73,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         return FALSE;
     }
+
+	//Vertex stuff
+	cubeRect.left = -0.5f;
+	cubeRect.right = 0.5f;
+	cubeRect.top = 0.5f;
+	cubeRect.bottom = -0.5f;
+	utility.GenerateCubeVertsAndIndices(cubeVerts, 0.5f, cubeRect, cubeInd);
 
 	// Initialize DirectX11
 	D3D_DRIVER_TYPE driverTypes[] =
