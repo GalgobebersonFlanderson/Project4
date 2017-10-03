@@ -10,7 +10,7 @@ UsefulStuff::~UsefulStuff()
 
 }
 
-void UsefulStuff::GenerateCubeVertsAndIndices(Vertex _vertsArr[24], float _depthRange, RectF _rect, int _indArr[36])
+void UsefulStuff::GenerateCubeVertsAndIndices(Vertex _vertsArr[24], float _depthRange, RectF _rect, UINT _indArr[36])
 {
 	_depthRange = fabsf(_depthRange);
 
@@ -24,21 +24,21 @@ void UsefulStuff::GenerateCubeVertsAndIndices(Vertex _vertsArr[24], float _depth
 		_rect.right = 1.0f;
 
 	_vertsArr[0].pos = DirectX::XMFLOAT3(_rect.left, _rect.top, -(_depthRange));
-	_vertsArr[0].normals = DirectX::XMFLOAT3(0.0f, 0.0f, _vertsArr[0].pos.z);
+	_vertsArr[0].normals = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	_vertsArr[1].pos = DirectX::XMFLOAT3(_rect.right, _rect.top, -(_depthRange));	
-	_vertsArr[1].normals = DirectX::XMFLOAT3(0.0f, 0.0f, _vertsArr[0].pos.z);
+	_vertsArr[1].normals = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	_vertsArr[2].pos = DirectX::XMFLOAT3(_rect.right, _rect.top, -(_depthRange));	
-	_vertsArr[2].normals = DirectX::XMFLOAT3(0.0f, 0.0f, _vertsArr[0].pos.z);
+	_vertsArr[2].normals = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	_vertsArr[3].pos = DirectX::XMFLOAT3(_rect.right, _rect.bottom, -(_depthRange));
-	_vertsArr[3].normals = DirectX::XMFLOAT3(0.0f, 0.0f, _vertsArr[0].pos.z);
+	_vertsArr[3].normals = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	_vertsArr[4].pos = DirectX::XMFLOAT3(_rect.right, _rect.bottom, -(_depthRange));
-	_vertsArr[4].normals = DirectX::XMFLOAT3(0.0f, 0.0f, _vertsArr[0].pos.z);
+	_vertsArr[4].normals = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	_vertsArr[5].pos = DirectX::XMFLOAT3(_rect.left, _rect.bottom, -(_depthRange));		
-	_vertsArr[5].normals = DirectX::XMFLOAT3(0.0f, 0.0f, _vertsArr[0].pos.z);
+	_vertsArr[5].normals = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	_vertsArr[6].pos = DirectX::XMFLOAT3(_rect.left, _rect.bottom, -(_depthRange));
-	_vertsArr[6].normals = DirectX::XMFLOAT3(0.0f, 0.0f, _vertsArr[0].pos.z);
+	_vertsArr[6].normals = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	_vertsArr[7].pos = DirectX::XMFLOAT3(_rect.left, _rect.top, -(_depthRange));
-	_vertsArr[7].normals = DirectX::XMFLOAT3(0.0f, 0.0f, _vertsArr[0].pos.z);
+	_vertsArr[7].normals = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	_vertsArr[8].pos = DirectX::XMFLOAT3(_rect.left, _rect.top, -(_depthRange));
 	_vertsArr[8].normals = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	_vertsArr[9].pos = DirectX::XMFLOAT3(_rect.left, _rect.top, _depthRange);
@@ -72,20 +72,20 @@ void UsefulStuff::GenerateCubeVertsAndIndices(Vertex _vertsArr[24], float _depth
 	_vertsArr[23].pos = DirectX::XMFLOAT3(_rect.left, _rect.top, _depthRange);
 	_vertsArr[23].normals = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-	int indArr[36] =
+	UINT indArr[36] =
 	{
 		0, 1, 3,
-		3, 5, 0,
+		3, 5, 0,	//Front Face
 		7, 9, 15,
-		15, 6, 7,
+		15, 6, 7,	//Left Face
 		8, 16, 11,
-		11, 2, 8,
+		11, 2, 8,	//Top Face
 		23, 21, 13,
-		13, 17, 23,
+		13, 17, 23,	//Back Face
 		14, 4, 19,
-		19, 22, 14,
+		19, 22, 14,	//Bottom Face
 		10, 18, 20,
-		20, 12, 10
+		20, 12, 10	//Right Face
 	};
 
 	for (int i = 0; i < 36; ++i)

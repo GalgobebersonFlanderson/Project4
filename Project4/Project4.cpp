@@ -11,36 +11,38 @@
 #define BufferHeight 950
 
 // Generic Variables
-UsefulStuff					utility;
-int							cubeInd[36];
+UsefulStuff											utility;
+UINT												cubeInd[36];
 
 // Struct defines
-Vertex						platformVerts[6];
-RectF						cubeRect;
+Vertex												platformVerts[6];
+RectF												cubeRect;
+
 // Struct defines
-Vertex						cubeVerts[24];
+Vertex												cubeVerts[24];
 
 // Global DirectX variables
-ID3D11Device*				m_pDevice = nullptr;
-ID3D11DeviceContext*		m_pContext = nullptr;
-ID3D11RenderTargetView*		m_pRtv = nullptr;
-IDXGISwapChain*				m_pSwapChain = nullptr;
-ID3D11InputLayout*			m_pInputLayout = nullptr;
-D3D_DRIVER_TYPE				m_DriverType;
-D3D_FEATURE_LEVEL			m_FeatureLevel;
-D3D11_VIEWPORT				m_ViewPort;
+Microsoft::WRL::ComPtr<ID3D11Device>				m_pDevice = nullptr;
+Microsoft::WRL::ComPtr<ID3D11DeviceContext>			m_pContext = nullptr;
+Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_pRtv = nullptr;
+Microsoft::WRL::ComPtr<IDXGISwapChain>				m_pSwapChain = nullptr;
+Microsoft::WRL::ComPtr<ID3D11InputLayout>			m_pInputLayout = nullptr;
+D3D_DRIVER_TYPE										m_DriverType;
+D3D_FEATURE_LEVEL									m_FeatureLevel;
+D3D11_VIEWPORT										m_ViewPort;
 
 //DirectX buffers
-ID3D11Buffer*				m_pVertexBuffer = nullptr;
-ID3D11Buffer*				m_pConstBuffer = nullptr;
+Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pCubeVertexBuffer = nullptr;
+Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pCubeIndexBuffer = nullptr;
+Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pConstBuffer = nullptr;
 
 //DirectX shaders
-ID3D11VertexShader*			m_pVertexShader = nullptr;
-ID3D11PixelShader*			m_pPixelShader = nullptr;
+Microsoft::WRL::ComPtr<ID3D11VertexShader>			m_pVertexShader = nullptr;
+Microsoft::WRL::ComPtr<ID3D11PixelShader>			m_pPixelShader = nullptr;
 
 //Resources
-ID3D11Resource*				m_pResource = nullptr;
-ID3D11Texture2D*			m_pBackBufferTexture = nullptr;
+Microsoft::WRL::ComPtr<ID3D11Resource>				m_pResource = nullptr;
+Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pBackBufferTexture = nullptr;
 
 
 // Global variables:
@@ -74,7 +76,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
-	//Vertex stuff
+	//Cube Setup
 	cubeRect.left = -0.5f;
 	cubeRect.right = 0.5f;
 	cubeRect.top = 0.5f;
@@ -121,8 +123,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	for (unsigned int i = 0; i < driverCount; ++i)
 	{
 		result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL,
-			featureLevels, featureCount, D3D11_SDK_VERSION, &swapDesc, &m_pSwapChain, &m_pDevice,
-			&m_FeatureLevel, &m_pContext);
+			featureLevels, featureCount, D3D11_SDK_VERSION, &swapDesc, m_pSwapChain.GetAddressOf(), m_pDevice.GetAddressOf(),
+			&m_FeatureLevel, m_pContext.GetAddressOf());
+
 		if (SUCCEEDED(result))
 		{
 			m_DriverType = driverTypes[i];
@@ -130,27 +133,62 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		}
 	}
 
+	//Cube vertex buffer description
+	D3D11_BUFFER_DESC cubeVertBufferDesc;
+	cubeVertBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	cubeVertBufferDesc.ByteWidth = sizeof(Vertex) * 24;
+	cubeVertBufferDesc.CPUAccessFlags = NULL;
+	cubeVertBufferDesc.MiscFlags = NULL;
+	cubeVertBufferDesc.StructureByteStride = sizeof(Vertex);
+	cubeVertBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+
+	//Cube vertex initial data
+	D3D11_SUBRESOURCE_DATA cubeVertInitData;
+	cubeVertInitData.pSysMem = cubeVerts;
+	cubeVertInitData.SysMemPitch = NULL;
+	cubeVertInitData.SysMemSlicePitch = NULL;
+
+	//Cube index buffer description
+	D3D11_BUFFER_DESC cubeIndBufferDesc;
+	cubeIndBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	cubeIndBufferDesc.ByteWidth = sizeof(int) * 36;
+	cubeIndBufferDesc.CPUAccessFlags = NULL;
+	cubeIndBufferDesc.MiscFlags = NULL;
+	cubeIndBufferDesc.StructureByteStride = sizeof(int);
+	cubeIndBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+
+	//Cube index initial data
+	D3D11_SUBRESOURCE_DATA cubeIndInitData;
+	cubeIndInitData.pSysMem = cubeInd;
+	cubeIndInitData.SysMemPitch = NULL;
+	cubeIndInitData.SysMemSlicePitch = NULL;
+
+	//Create buffers
+	result = m_pDevice->CreateBuffer(&cubeVertBufferDesc, &cubeVertInitData, m_pCubeVertexBuffer.GetAddressOf());
+	result = m_pDevice->CreateBuffer(&cubeIndBufferDesc, &cubeIndInitData, m_pCubeIndexBuffer.GetAddressOf());
+
 	// Create shaders
-	m_pDevice->CreateVertexShader(VertexShader, sizeof(VertexShader), NULL, &m_pVertexShader);
-	m_pDevice->CreatePixelShader(PixelShader, sizeof(PixelShader), NULL, &m_pPixelShader);
+	result = m_pDevice->CreateVertexShader(VertexShader, sizeof(VertexShader), NULL, m_pVertexShader.GetAddressOf());
+	result = m_pDevice->CreatePixelShader(PixelShader, sizeof(PixelShader), NULL, m_pPixelShader.GetAddressOf());
 	
 	// Setup layout
 	D3D11_INPUT_ELEMENT_DESC vertexShaderLayout[] = 
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"NORMALS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"UV", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 	
 	// Create input layout
-	m_pDevice->CreateInputLayout(vertexShaderLayout, 3, VertexShader, sizeof(VertexShader), &m_pInputLayout);
+	result = m_pDevice->CreateInputLayout(vertexShaderLayout, ARRAYSIZE(vertexShaderLayout), VertexShader, sizeof(VertexShader), m_pInputLayout.GetAddressOf());
 
 	// Create RTV
-	m_pSwapChain->GetBuffer(NULL, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&m_pBackBufferTexture));
-	m_pDevice->CreateRenderTargetView(m_pBackBufferTexture, nullptr, &m_pRtv);
+	result = m_pSwapChain->GetBuffer(NULL, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(m_pBackBufferTexture.GetAddressOf()));
+	CD3D11_RENDER_TARGET_VIEW_DESC RTVDesc(D3D11_RTV_DIMENSION_TEXTURE2D);
+	result = m_pDevice->CreateRenderTargetView(m_pBackBufferTexture.Get(), &RTVDesc, m_pRtv.GetAddressOf());
 
 	// Binding RTV
-	m_pContext->OMSetRenderTargets(1, &m_pRtv, nullptr);
+	m_pContext->OMSetRenderTargets(1, m_pRtv.GetAddressOf(), nullptr);
 
 	// Create viewport
 	m_ViewPort.Width = static_cast<float>(BufferWidth);
@@ -160,11 +198,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	m_ViewPort.MinDepth = 0.0f;
 	m_ViewPort.MaxDepth = 1.0f;
 
-	// Binding viewport
+	//Binding viewport
 	m_pContext->RSSetViewports(1, &m_ViewPort);
 
-	// Clearing RTV
-	m_pContext->ClearRenderTargetView(m_pRtv, DirectX::Colors::Black);
+	//Binding buffers
+	UINT cubeVertStride = sizeof(Vertex);
+	UINT cubeVertOffset = 0;
+	UINT cubeIndOffset = 0;
+	m_pContext->IASetVertexBuffers(0, 1, m_pCubeVertexBuffer.GetAddressOf(), &cubeVertStride, &cubeVertOffset);
+	m_pContext->IASetIndexBuffer(m_pCubeIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, cubeIndOffset);
+
+	//Binding shaders
+	m_pContext->VSSetShader(m_pVertexShader.Get(), 0, 0);
+	m_pContext->PSSetShader(m_pPixelShader.Get(), 0, 0);
+
+	//Binding input layout
+	m_pContext->IASetInputLayout(m_pInputLayout.Get());
+
+	//Binding topology
+	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_PROJECT4));
 
@@ -180,21 +232,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             DispatchMessage(&msg);
         }
 
+		// Clearing RTV
+		m_pContext->ClearRenderTargetView(m_pRtv.Get(), DirectX::Colors::Blue);
+
+		//Draw
+		m_pContext->Draw(24, 0);
+
 		// Display stuff on screen
 		m_pSwapChain->Present(0, 0);
     }
-
-	// Shutdown DirectX11
-	if (m_pBackBufferTexture) m_pBackBufferTexture->Release();
-	if (m_pContext) m_pContext->Release();
-	if (m_pDevice) m_pDevice->Release();
-	if (m_pRtv) m_pRtv->Release();
-	if (m_pSwapChain) m_pSwapChain->Release();
-	if (m_pPixelShader) m_pPixelShader->Release();
-	if (m_pVertexShader) m_pVertexShader->Release();
-	if (m_pVertexBuffer) m_pVertexBuffer->Release();
-	if (m_pResource) m_pResource->Release();
-	if (m_pConstBuffer) m_pConstBuffer->Release();
 
     return (int) msg.wParam;
 }

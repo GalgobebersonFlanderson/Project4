@@ -9,14 +9,15 @@ struct INPUT_VERTEX
 {
 	float4 position : POSITION;
 	float4 normals : NORMALS;
-	float2 uv : UV;
+	float4 uv : UV;
+
 };
 
 struct OUTPUT_VERTEX
 {
 	float4 position : SV_POSITION;
 	float4 normals : NORMALS;
-	float2 uv : UV;
+	float4 uv : UV;
 };
 
 OUTPUT_VERTEX main(INPUT_VERTEX input)
