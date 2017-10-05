@@ -10,7 +10,6 @@ struct INPUT_VERTEX
 	float4 position : POSITION;
 	float4 normals : NORMALS;
 	float4 uv : UV;
-
 };
 
 struct OUTPUT_VERTEX
@@ -23,7 +22,6 @@ struct OUTPUT_VERTEX
 OUTPUT_VERTEX main(INPUT_VERTEX input)
 {
 	OUTPUT_VERTEX output;
-
 	output.position = mul(input.position, worldMatrix);
 	output.position = mul(input.position, viewMatrix);
 	output.position = mul(input.position, projectionMatrix);

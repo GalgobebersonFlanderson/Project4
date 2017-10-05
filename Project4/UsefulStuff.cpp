@@ -119,3 +119,54 @@ void UsefulStuff::GenerateCubeVertsAndIndices(Vertex _vertsArr[24], float _depth
 	memcpy(_indArr, indArr, sizeof(int) * 36);
 }
 
+void UsefulStuff::UpdateCamera(DirectX::XMFLOAT4X4 &_camera, float const & _timer, const float _moveSpeed, const float _rotSpeed)
+{
+	if (GetAsyncKeyState('W') & 0x1 || GetAsyncKeyState(VK_UP) & 0x1)
+	{
+		DirectX::XMMATRIX translation = DirectX::XMMatrixTranslation(0.0f, 0.0f, _moveSpeed * _timer);
+		DirectX::XMMATRIX temp_cam = DirectX::XMLoadFloat4x4(&_camera);
+		DirectX::XMMATRIX result = DirectX::XMMatrixMultiply(translation, temp_cam);
+		DirectX::XMStoreFloat4x4(&_camera, result);
+	}
+
+	if (GetAsyncKeyState('S') & 0x1 || GetAsyncKeyState(VK_DOWN) & 0x1)
+	{
+		DirectX::XMMATRIX translation = DirectX::XMMatrixTranslation(0.0f, 0.0f, -_moveSpeed * _timer);
+		DirectX::XMMATRIX temp_cam = DirectX::XMLoadFloat4x4(&_camera);
+		DirectX::XMMATRIX result = DirectX::XMMatrixMultiply(translation, temp_cam);
+		DirectX::XMStoreFloat4x4(&_camera, result);
+	}
+
+	if (GetAsyncKeyState('A') & 0x1 || GetAsyncKeyState(VK_LEFT) & 0x1)
+	{
+		DirectX::XMMATRIX translation = DirectX::XMMatrixTranslation(-_moveSpeed * _timer, 0.0f, 0.0f);
+		DirectX::XMMATRIX temp_cam = DirectX::XMLoadFloat4x4(&_camera);
+		DirectX::XMMATRIX result = DirectX::XMMatrixMultiply(translation, temp_cam);
+		DirectX::XMStoreFloat4x4(&_camera, result);
+	}
+
+	if (GetAsyncKeyState('D') & 0x1 || GetAsyncKeyState(VK_RIGHT) & 0x1)
+	{
+		DirectX::XMMATRIX translation = DirectX::XMMatrixTranslation(_moveSpeed * _timer, 0.0f, 0.0f);
+		DirectX::XMMATRIX temp_cam = DirectX::XMLoadFloat4x4(&_camera);
+		DirectX::XMMATRIX result = DirectX::XMMatrixMultiply(translation, temp_cam);
+		DirectX::XMStoreFloat4x4(&_camera, result);
+	}
+
+	if ((GetAsyncKeyState(VK_LSHIFT) && GetAsyncKeyState('W')) & 0x1 || (GetAsyncKeyState(VK_LSHIFT) && GetAsyncKeyState(VK_UP) & 0x1))
+	{
+		DirectX::XMMATRIX translation = DirectX::XMMatrixTranslation(0.0f, _moveSpeed * _timer, 0.0f);
+		DirectX::XMMATRIX temp_cam = DirectX::XMLoadFloat4x4(&_camera);
+		DirectX::XMMATRIX result = DirectX::XMMatrixMultiply(translation, temp_cam);
+		DirectX::XMStoreFloat4x4(&_camera, result);
+	}
+
+	if ((GetAsyncKeyState(VK_LSHIFT) && GetAsyncKeyState('S')) & 0x1 || (GetAsyncKeyState(VK_LSHIFT) && GetAsyncKeyState(VK_DOWN) & 0x1))
+	{
+		DirectX::XMMATRIX translation = DirectX::XMMatrixTranslation(0.0f, -_moveSpeed * _timer, 0.0f);
+		DirectX::XMMATRIX temp_cam = DirectX::XMLoadFloat4x4(&_camera);
+		DirectX::XMMATRIX result = DirectX::XMMatrixMultiply(translation, temp_cam);
+		DirectX::XMStoreFloat4x4(&_camera, result);
+	}
+}
+

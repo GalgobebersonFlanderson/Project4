@@ -31,6 +31,13 @@ struct Vertex
 	DirectX::XMFLOAT2 uv;
 };
 
+struct Send_To_VRAM
+{
+	DirectX::XMFLOAT4X4 worldMat;
+	DirectX::XMFLOAT4X4 viewMat;
+	DirectX::XMFLOAT4X4 projMat;
+};
+
 struct RectF
 {
 	float top, left, bottom, right;
@@ -38,4 +45,7 @@ struct RectF
 
 #include <DirectXMath.h>
 #include "UsefulStuff.h"
+#include "XTime.h"
+#include "Defines.h"
 #include <wrl/client.h>
+#include "DirectXecution.h"
