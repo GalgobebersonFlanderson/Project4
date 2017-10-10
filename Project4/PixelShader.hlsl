@@ -1,11 +1,12 @@
 struct INPUT_PIXEL
 {
 	float4 projectedCoordinate : SV_POSITION;
-	float4 normals : NORMALs;
-	float4 uv : UVs;
+	float3 normals : NORMALS;
+	float2 uv : UV;
 };
 
-float4 main(INPUT_PIXEL colorFromRasterizer) : SV_TARGET
+float3 main(INPUT_PIXEL colorFromRasterizer) : SV_TARGET
 {
+	colorFromRasterizer.normals = float3(1.0f, 0.0f, 1.0f);
 	return colorFromRasterizer.normals;
 }

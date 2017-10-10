@@ -7,25 +7,28 @@ cbuffer MatrixBuffer
 
 struct INPUT_VERTEX
 {
-	float4 position : POSITION;
-	float4 normals : NORMALS;
-	float4 uv : UV;
+	float3 position : POSITION;
+	float3 normals : NORMALS;
+	float2 uv : UV;
 };
 
 struct OUTPUT_VERTEX
 {
 	float4 position : SV_POSITION;
-	float4 normals : NORMALS;
-	float4 uv : UV;
+	float3 normals : NORMALS;
+	float2 uv : UV;
 };
 
 OUTPUT_VERTEX main(INPUT_VERTEX input)
 {
-	OUTPUT_VERTEX output;
-	output.position = mul(input.position, worldMatrix);
-	output.position = mul(input.position, viewMatrix);
-	output.position = mul(input.position, projectionMatrix);
+	float4x4 finalMat;
 
+	OUTPUT_VERTEX output;
+	output.position = float4(input.position, 1.0f);
+	finalMat = mul(worldMatrix, viewMatrix);
+	finalMat = mul(finalMat, projectionMatrix);
+
+	output.position = mul(output.position, finalMat);
 	output.normals = input.normals;
 	output.uv = input.uv;
 	return output;

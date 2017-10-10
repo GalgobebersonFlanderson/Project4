@@ -39,7 +39,7 @@ private:
 public:
 	DirectXecution();
 	~DirectXecution();
-	void DirectXInit(HWND _window, DirectX::XMFLOAT4X4 _camera);
-	void DirectXRun();
+	void DirectXInit(HWND _window, DirectX::XMFLOAT4X4 &_camera);
+	void DirectXRun(DirectX::XMFLOAT4X4 &_camera);
 };
 

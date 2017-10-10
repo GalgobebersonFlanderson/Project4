@@ -47,11 +47,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
+	//Set camera to LookAtLH
+	DirectX::XMVECTOR EyePos = { 0.0f, 0.0f, -1.0f, 0.0f };
+	DirectX::XMVECTOR FocusPos = { 0.0f, 0.0f, 0.0f, 0.0f };
+	DirectX::XMVECTOR UpDirection = { 0.0f, 1.0f, 0.0f, 0.0f };
+
+	DirectX::XMStoreFloat4x4(&camera, DirectX::XMMatrixLookAtLH(EyePos, FocusPos, UpDirection));
+
 	//DirectX Init
 	directx.DirectXInit(window, camera);
-
-	//Set camera to identity
-	DirectX::XMStoreFloat4x4(&camera, DirectX::XMMatrixIdentity());
 
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_PROJECT4));
 
@@ -70,7 +74,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
 
 		//DirectX Run
-		directx.DirectXRun();
+		directx.DirectXRun(camera);
 
 		//Camera
 		utility.UpdateCamera(camera, (float)timer.Delta(), 1.0f, 0.75f);

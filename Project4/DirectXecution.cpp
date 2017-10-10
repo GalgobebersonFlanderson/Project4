@@ -11,7 +11,7 @@ DirectXecution::~DirectXecution()
 {
 }
 
-void DirectXecution::DirectXInit(HWND _window, DirectX::XMFLOAT4X4 _camera)
+void DirectXecution::DirectXInit(HWND _window, DirectX::XMFLOAT4X4 &_camera)
 {
 	//Cube setup
 	cubeRect.left = -0.5f;
@@ -120,10 +120,9 @@ void DirectXecution::DirectXInit(HWND _window, DirectX::XMFLOAT4X4 _camera)
 	result = m_pDevice->CreateBuffer(&cubeIndBufferDesc, &cubeIndInitData, m_pCubeIndexBuffer.GetAddressOf());
 	result = m_pDevice->CreateBuffer(&constBufferDesc, &constBufferInitData, m_pConstBuffer.GetAddressOf());
 
-	//Setting const buffer matricies
+	//Const buffer world and proj matricies setup
 	DirectX::XMStoreFloat4x4(&vramData.worldMat, DirectX::XMMatrixIdentity());
-	DirectX::XMStoreFloat4x4(&vramData.viewMat, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&_camera))));
-	//DirectX::XMStoreFloat4x4(&vramData.projMat, DirectX::XMMatrixPerspectiveFovLH())
+	DirectX::XMStoreFloat4x4(&vramData.projMat, DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(67.0f, (float)BufferWidth / (float)BufferHeight, 0.1f, 100.0f)));
 
 	//Create shaders
 	result = m_pDevice->CreateVertexShader(VertexShader, sizeof(VertexShader), NULL, m_pVertexShader.GetAddressOf());
@@ -132,9 +131,9 @@ void DirectXecution::DirectXInit(HWND _window, DirectX::XMFLOAT4X4 _camera)
 	//Setup layout
 	D3D11_INPUT_ELEMENT_DESC vertexShaderLayout[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMALS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "UV", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMALS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 	//Create input layout
@@ -154,13 +153,16 @@ void DirectXecution::DirectXInit(HWND _window, DirectX::XMFLOAT4X4 _camera)
 	m_ViewPort.MaxDepth = 1.0f;
 }
 
-void DirectXecution::DirectXRun()
+void DirectXecution::DirectXRun(DirectX::XMFLOAT4X4 &_camera)
 {
+	//Setting const buffer view matrix
+	DirectX::XMStoreFloat4x4(&vramData.viewMat, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&_camera)));
+
 	//Binding RTV
 	m_pContext->OMSetRenderTargets(1, m_pRtv.GetAddressOf(), nullptr);
 
 	//Clearing RTV
-	m_pContext->ClearRenderTargetView(m_pRtv.Get(), DirectX::Colors::BlueViolet);
+	m_pContext->ClearRenderTargetView(m_pRtv.Get(), DirectX::Colors::WhiteSmoke);
 
 	//Binding viewport
 	m_pContext->RSSetViewports(1, &m_ViewPort);
