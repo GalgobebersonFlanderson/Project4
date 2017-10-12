@@ -70,8 +70,52 @@ void DirectXecution::DirectXInit(HWND _window, DirectX::XMFLOAT4X4 &_camera)
 		}
 	}
 
+	//Depth stencil description
+	D3D11_TEXTURE2D_DESC depthStencilDesc;
+	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+	D3D11_DEPTH_STENCIL_DESC depthStencilStateDesc;
+	ZeroMemory(&depthStencilStateDesc, sizeof(depthStencilStateDesc));
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
+
+		//Resource
+		depthStencilDesc.ArraySize = 1;
+		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		depthStencilDesc.CPUAccessFlags = NULL;
+		depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilDesc.Height = BufferHeight;
+		depthStencilDesc.Width = BufferWidth;
+		depthStencilDesc.MipLevels = 1;
+		depthStencilDesc.MiscFlags = NULL;
+		depthStencilDesc.SampleDesc.Count = 1;
+		depthStencilDesc.SampleDesc.Quality = 0;
+		depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+
+		//State
+		depthStencilStateDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+		depthStencilStateDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilStateDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		depthStencilStateDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilStateDesc.DepthEnable = true;
+		depthStencilStateDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		depthStencilStateDesc.DepthFunc = D3D11_COMPARISON_LESS;
+		depthStencilStateDesc.StencilEnable = true;
+		depthStencilStateDesc.StencilReadMask = 0xFF;
+		depthStencilStateDesc.StencilWriteMask = 0xFF;
+		depthStencilStateDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilStateDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+		depthStencilStateDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilStateDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+		//View
+		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+
 	//Cube vertex buffer description
 	D3D11_BUFFER_DESC cubeVertBufferDesc;
+	ZeroMemory(&cubeVertBufferDesc, sizeof(cubeVertBufferDesc));
 	cubeVertBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	cubeVertBufferDesc.ByteWidth = sizeof(Vertex) * 24;
 	cubeVertBufferDesc.CPUAccessFlags = NULL;
@@ -81,12 +125,14 @@ void DirectXecution::DirectXInit(HWND _window, DirectX::XMFLOAT4X4 &_camera)
 
 	//Cube vertex initial data
 	D3D11_SUBRESOURCE_DATA cubeVertInitData;
+	ZeroMemory(&cubeVertInitData, sizeof(cubeVertInitData));
 	cubeVertInitData.pSysMem = cubeVerts;
 	cubeVertInitData.SysMemPitch = NULL;
 	cubeVertInitData.SysMemSlicePitch = NULL;
 
 	//Cube index buffer description
 	D3D11_BUFFER_DESC cubeIndBufferDesc;
+	ZeroMemory(&cubeIndBufferDesc, sizeof(cubeIndBufferDesc));
 	cubeIndBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	cubeIndBufferDesc.ByteWidth = sizeof(int) * 36;
 	cubeIndBufferDesc.CPUAccessFlags = NULL;
@@ -96,12 +142,14 @@ void DirectXecution::DirectXInit(HWND _window, DirectX::XMFLOAT4X4 &_camera)
 
 	//Cube index initial data
 	D3D11_SUBRESOURCE_DATA cubeIndInitData;
+	ZeroMemory(&cubeIndInitData, sizeof(cubeIndInitData));
 	cubeIndInitData.pSysMem = cubeInd;
 	cubeIndInitData.SysMemPitch = NULL;
 	cubeIndInitData.SysMemSlicePitch = NULL;
 
 	//Const buffer description
 	D3D11_BUFFER_DESC constBufferDesc;
+	ZeroMemory(&constBufferDesc, sizeof(constBufferDesc));
 	constBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	constBufferDesc.ByteWidth = sizeof(Send_To_VRAM);
 	constBufferDesc.CPUAccessFlags = NULL;
@@ -111,9 +159,15 @@ void DirectXecution::DirectXInit(HWND _window, DirectX::XMFLOAT4X4 &_camera)
 
 	//Const buffer initial data
 	D3D11_SUBRESOURCE_DATA constBufferInitData;
+	ZeroMemory(&constBufferInitData, sizeof(constBufferInitData));
 	constBufferInitData.pSysMem = &vramData;
 	constBufferInitData.SysMemPitch = NULL;
 	constBufferInitData.SysMemSlicePitch = NULL;
+
+	//Create stencil
+	result = m_pDevice->CreateTexture2D(&depthStencilDesc, NULL, m_pDepthStencil.GetAddressOf());
+	result = m_pDevice->CreateDepthStencilState(&depthStencilStateDesc, m_pDepthStencilState.GetAddressOf());
+	result = m_pDevice->CreateDepthStencilView(m_pDepthStencil.Get(), &depthStencilViewDesc, m_pDepthStencilView.GetAddressOf());
 
 	//Create buffers
 	result = m_pDevice->CreateBuffer(&cubeVertBufferDesc, &cubeVertInitData, m_pCubeVertexBuffer.GetAddressOf());
@@ -122,7 +176,7 @@ void DirectXecution::DirectXInit(HWND _window, DirectX::XMFLOAT4X4 &_camera)
 
 	//Const buffer world and proj matricies setup
 	DirectX::XMStoreFloat4x4(&vramData.worldMat, DirectX::XMMatrixIdentity());
-	DirectX::XMStoreFloat4x4(&vramData.projMat, DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(67.0f, (float)BufferWidth / (float)BufferHeight, 0.1f, 100.0f)));
+	DirectX::XMStoreFloat4x4(&vramData.projMat, DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(130.0f), (float)BufferHeight / (float)BufferWidth, 0.1f, 100.0f)));
 
 	//Create shaders
 	result = m_pDevice->CreateVertexShader(VertexShader, sizeof(VertexShader), NULL, m_pVertexShader.GetAddressOf());
@@ -158,11 +212,17 @@ void DirectXecution::DirectXRun(DirectX::XMFLOAT4X4 &_camera)
 	//Setting const buffer view matrix
 	DirectX::XMStoreFloat4x4(&vramData.viewMat, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&_camera)));
 
+	//Binding depth stencil
+	m_pContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 1);
+
 	//Binding RTV
-	m_pContext->OMSetRenderTargets(1, m_pRtv.GetAddressOf(), nullptr);
+	m_pContext->OMSetRenderTargets(1, m_pRtv.GetAddressOf(), m_pDepthStencilView.Get());
 
 	//Clearing RTV
 	m_pContext->ClearRenderTargetView(m_pRtv.Get(), DirectX::Colors::WhiteSmoke);
+
+	//CLearing stencil
+	m_pContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	//Binding viewport
 	m_pContext->RSSetViewports(1, &m_ViewPort);

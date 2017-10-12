@@ -35,6 +35,11 @@ private:
 	//Resources
 	Microsoft::WRL::ComPtr<ID3D11Resource>				m_pResource = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pBackBufferTexture = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pDepthStencil = nullptr;
+
+	//Depth stencil
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState>		m_pDepthStencilState = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		m_pDepthStencilView = nullptr;
 
 public:
 	DirectXecution();

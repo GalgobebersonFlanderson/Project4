@@ -7,8 +7,6 @@
 #pragma comment(lib, "d3d11.lib")
 
 #define MAX_LOADSTRING 100
-#define BufferWidth 1000
-#define BufferHeight 950
 
 //Variables
 DirectXecution										directx;
@@ -59,15 +57,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_PROJECT4));
 
-    MSG msg;
+    MSG msg; ZeroMemory(&msg, sizeof(msg));
 
     // Main message loop:
-    while (GetMessage(&msg, nullptr, 0, 0))
+    while (msg.message != WM_QUIT)
     {
 		timer.Signal();
 
 		// Window stuff
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
@@ -77,7 +75,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		directx.DirectXRun(camera);
 
 		//Camera
-		utility.UpdateCamera(camera, (float)timer.Delta(), 1.0f, 0.75f);
+		utility.UpdateCamera(camera, (float)timer.Delta(), 3.0f, 0.75f);
     }
 
     return (int) msg.wParam;
