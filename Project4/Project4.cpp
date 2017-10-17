@@ -46,7 +46,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     }
 
 	//Set camera to LookAtLH
-	DirectX::XMVECTOR EyePos = { 0.0f, 0.0f, -1.0f, 0.0f };
+	DirectX::XMVECTOR EyePos = { 0.0f, 0.0f, -4.0f, 0.0f };
 	DirectX::XMVECTOR FocusPos = { 0.0f, 0.0f, 0.0f, 0.0f };
 	DirectX::XMVECTOR UpDirection = { 0.0f, 1.0f, 0.0f, 0.0f };
 
@@ -75,7 +75,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		directx.DirectXRun(camera);
 
 		//Camera
-		utility.UpdateCamera(camera, (float)timer.Delta(), 3.0f, 0.75f);
+		utility.UpdateCamera(camera, (float)timer.Delta(), 3.0f, 1.5f);
     }
 
     return (int) msg.wParam;
