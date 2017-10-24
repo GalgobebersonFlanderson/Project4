@@ -16,7 +16,6 @@ private:
 	//DirectX variables
 	Microsoft::WRL::ComPtr<ID3D11Device>				m_pDevice = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext>			m_pContext = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_pRtv = nullptr;
 	Microsoft::WRL::ComPtr<IDXGISwapChain>				m_pSwapChain = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout>			m_pInputLayout = nullptr;
 	D3D_DRIVER_TYPE										m_DriverType;
@@ -32,10 +31,15 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11VertexShader>			m_pVertexShader = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader>			m_pPixelShader = nullptr;
 
+	//Views
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_pRtv = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pSrv = nullptr;
+
 	//Resources
 	Microsoft::WRL::ComPtr<ID3D11Resource>				m_pResource = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pBackBufferTexture = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pDepthStencil = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pBrickTexture = nullptr;
 
 	//Depth stencil
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState>		m_pDepthStencilState = nullptr;

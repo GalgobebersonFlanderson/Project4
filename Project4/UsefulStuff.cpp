@@ -138,8 +138,9 @@ void UsefulStuff::GenerateCubeVertsAndIndices(Vertex _vertsArr[24], float _depth
 	memcpy(_indArr, indArr, sizeof(int) * 36);
 }
 
-void UsefulStuff::UpdateCamera(DirectX::XMFLOAT4X4 &_camera, float const &_timer, const float _moveSpeed, const float _rotSpeed)
+void UsefulStuff::UpdateCamera(HWND &_hwnd, DirectX::XMFLOAT4X4 &_camera, float const &_timer, const float _moveSpeed, const float _rotSpeed)
 {
+	POINT cursor;
 	DirectX::XMMATRIX translation = DirectX::XMMatrixIdentity();
 	DirectX::XMMATRIX temp_cam = DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&_camera));
 
@@ -179,29 +180,18 @@ void UsefulStuff::UpdateCamera(DirectX::XMFLOAT4X4 &_camera, float const &_timer
 		translation = DirectX::XMMatrixTranslation(0.0f, 0.0f, -_moveSpeed * _timer);
 		temp_cam = DirectX::XMMatrixMultiply(translation, temp_cam);
 	}
-	//Rotate camera left
-	if ((GetAsyncKeyState(VK_LCONTROL) && GetAsyncKeyState('A')) || (GetAsyncKeyState(VK_LCONTROL) && GetAsyncKeyState(VK_LEFT)))
+
+	//Rotation using mouse
+	if (ScreenToClient(_hwnd, &cursor))
 	{
-		translation = DirectX::XMMatrixRotationY(-_rotSpeed * _timer);
-		temp_cam = DirectX::XMMatrixMultiply(translation, temp_cam);
-	}
-	//Rotate camera right
-	if ((GetAsyncKeyState(VK_LCONTROL) && GetAsyncKeyState('D')) || (GetAsyncKeyState(VK_LCONTROL) && GetAsyncKeyState(VK_RIGHT)))
-	{
-		translation = DirectX::XMMatrixRotationY(_rotSpeed * _timer);
-		temp_cam = DirectX::XMMatrixMultiply(translation, temp_cam);
-	}
-	//Rotate camera up
-	if ((GetAsyncKeyState(VK_LCONTROL) && GetAsyncKeyState('W')) || (GetAsyncKeyState(VK_LCONTROL) && GetAsyncKeyState(VK_UP)))
-	{
-		translation = DirectX::XMMatrixRotationX(-_rotSpeed * _timer);
-		temp_cam = DirectX::XMMatrixMultiply(translation, temp_cam);
-	}
-	//Rotate camera down
-	if ((GetAsyncKeyState(VK_LCONTROL) && GetAsyncKeyState('S')) || (GetAsyncKeyState(VK_LCONTROL) && GetAsyncKeyState(VK_DOWN)))
-	{
-		translation = DirectX::XMMatrixRotationX(_rotSpeed * _timer);
-		temp_cam = DirectX::XMMatrixMultiply(translation, temp_cam);
+		POINT prev;
+
+		if (GetAsyncKeyState(VK_LBUTTON))
+		{
+
+		}
+
+		prev = cursor;
 	}
 
 	temp_cam = DirectX::XMMatrixInverse(nullptr, temp_cam);

@@ -1,3 +1,6 @@
+texture2D tex : register(t0);
+SamplerState texSample : register(s0);
+
 struct INPUT_PIXEL
 {
 	float4 projectedCoordinate : SV_POSITION;
@@ -8,5 +11,5 @@ struct INPUT_PIXEL
 
 float4 main(INPUT_PIXEL colorFromRasterizer) : SV_TARGET
 {
-	return colorFromRasterizer.color;
+	return tex.Sample(texSample, colorFromRasterizer.uv);
 }

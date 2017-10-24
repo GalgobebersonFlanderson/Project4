@@ -50,3 +50,8 @@ struct RectF
 #include "Defines.h"
 #include <wrl/client.h>
 #include "DirectXecution.h"
+#include "DDSTextureLoader.h"
+#include <dxgiformat.h>
+#include <assert.h>
+#include <algorithm>
+#include <memory>

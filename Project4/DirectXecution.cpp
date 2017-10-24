@@ -164,6 +164,9 @@ void DirectXecution::DirectXInit(HWND _window, DirectX::XMFLOAT4X4 &_camera)
 	constBufferInitData.SysMemPitch = NULL;
 	constBufferInitData.SysMemSlicePitch = NULL;
 
+	//Create texture
+	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"bricks.dds", (ID3D11Resource**)m_pBrickTexture.GetAddressOf(), m_pSrv.GetAddressOf());
+
 	//Create stencil
 	result = m_pDevice->CreateTexture2D(&depthStencilDesc, NULL, m_pDepthStencil.GetAddressOf());
 	result = m_pDevice->CreateDepthStencilState(&depthStencilStateDesc, m_pDepthStencilState.GetAddressOf());
@@ -222,7 +225,7 @@ void DirectXecution::DirectXRun(DirectX::XMFLOAT4X4 &_camera)
 	//Clearing RTV
 	m_pContext->ClearRenderTargetView(m_pRtv.Get(), DirectX::Colors::WhiteSmoke);
 
-	//CLearing stencil
+	//Clearing stencil
 	m_pContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	//Binding viewport
@@ -246,6 +249,10 @@ void DirectXecution::DirectXRun(DirectX::XMFLOAT4X4 &_camera)
 	m_pContext->VSSetShader(m_pVertexShader.Get(), 0, 0);
 	m_pContext->VSSetConstantBuffers(0, 1, m_pConstBuffer.GetAddressOf());
 	m_pContext->PSSetShader(m_pPixelShader.Get(), 0, 0);
+
+	//Binding SRV
+	ID3D11ShaderResourceView* texViews[] = { m_pSrv.Get() };
+	m_pContext->PSSetShaderResources(0, ARRAYSIZE(texViews), texViews);
 
 	//Draw
 	m_pContext->DrawIndexed(ARRAYSIZE(cubeInd), 0, 0);

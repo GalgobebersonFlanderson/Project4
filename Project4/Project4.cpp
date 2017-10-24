@@ -75,7 +75,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		directx.DirectXRun(camera);
 
 		//Camera
-		utility.UpdateCamera(camera, (float)timer.Delta(), 3.0f, 1.5f);
+		utility.UpdateCamera(window, camera, (float)timer.Delta(), 3.0f, 1.5f);
     }
 
     return (int) msg.wParam;
