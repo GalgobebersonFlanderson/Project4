@@ -2,17 +2,17 @@
 //
 
 #include "stdafx.h"
-#include "Project4.h"
 
 #pragma comment(lib, "d3d11.lib")
 
 #define MAX_LOADSTRING 100
 
 //Variables
-DirectXecution										directx;
+DirectXecution*										directx = nullptr;
 UsefulStuff											utility;
 DirectX::XMFLOAT4X4									camera;
 XTime												timer;
+HWND												window;
 
 // Global variables:
 HINSTANCE hInst;                                // current instance
@@ -39,7 +39,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MyRegisterClass(hInstance);
 
     // Perform application initialization:
-	HWND window;
+
     if (!InitInstance (hInstance, nCmdShow, window))
     {
         return FALSE;
@@ -50,10 +50,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	DirectX::XMVECTOR FocusPos = { 0.0f, 0.0f, 0.0f, 0.0f };
 	DirectX::XMVECTOR UpDirection = { 0.0f, 1.0f, 0.0f, 0.0f };
 
-	DirectX::XMStoreFloat4x4(&camera, DirectX::XMMatrixLookAtLH(EyePos, FocusPos, UpDirection));
+	DirectX::XMStoreFloat4x4(&camera, XMMatrixInverse(nullptr, DirectX::XMMatrixLookAtLH(EyePos, FocusPos, UpDirection)));
 
 	//DirectX Init
-	directx.DirectXInit(window, camera);
+	directx = new DirectXecution();
+	directx->DirectXInit(window);
 
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_PROJECT4));
 
@@ -72,15 +73,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
 
 		//DirectX Run
-		directx.DirectXRun(camera);
+		directx->DirectXRun(camera);
 
 		//Camera
-		utility.UpdateCamera(window, camera, (float)timer.Delta(), 3.0f, 1.5f);
+		utility.UpdateCamera(camera, (float)timer.Delta(), 5.0f, 10.0f);
     }
 
+	delete directx;
     return (int) msg.wParam;
 }
-
 
 
 //
@@ -168,6 +169,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+
+	case WM_SIZE:
+		if (directx != nullptr)
+		directx->ResizeUpdate(window);
+		break;
+
     case WM_PAINT:
         {
             PAINTSTRUCT ps;

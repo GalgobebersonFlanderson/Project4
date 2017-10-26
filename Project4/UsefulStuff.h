@@ -3,10 +3,11 @@
 class UsefulStuff
 {
 	DirectX::XMFLOAT4X4 camera;
+	POINT cursorPrev = POINT();
 public:
 	UsefulStuff();
 	~UsefulStuff();
 	void GenerateCubeVertsAndIndices(Vertex _vertsArr[24], float _depthRange, RectF _rect, UINT _indArr[36]);
-	void UpdateCamera(HWND &_hwnd, DirectX::XMFLOAT4X4 &_camera, float const& _timer, const float _moveSpeed, const float _rotSpeed);
+	void UpdateCamera(DirectX::XMFLOAT4X4 &_camera, float const& _timer, const float _moveSpeed, const float _rotSpeed);
 };
 

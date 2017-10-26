@@ -44,6 +44,8 @@ struct RectF
 	float top, left, bottom, right;
 };
 
+using namespace DirectX;
+
 #include <DirectXMath.h>
 #include "UsefulStuff.h"
 #include "XTime.h"
@@ -51,6 +53,7 @@ struct RectF
 #include <wrl/client.h>
 #include "DirectXecution.h"
 #include "DDSTextureLoader.h"
+#include "Project4.h"
 #include <dxgiformat.h>
 #include <assert.h>
 #include <algorithm>

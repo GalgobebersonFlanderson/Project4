@@ -10,6 +10,7 @@ private:
 	//Struct defines
 	Vertex												platformVerts[6];
 	Vertex												cubeVerts[24];
+	Vertex												cube2Verts[24];
 	RectF												cubeRect;
 	Send_To_VRAM										vramData;
 
@@ -21,6 +22,7 @@ private:
 	D3D_DRIVER_TYPE										m_DriverType;
 	D3D_FEATURE_LEVEL									m_FeatureLevel;
 	D3D11_VIEWPORT										m_ViewPort;
+	HRESULT												result;
 
 	//DirectX buffers
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pCubeVertexBuffer = nullptr;
@@ -48,7 +50,8 @@ private:
 public:
 	DirectXecution();
 	~DirectXecution();
-	void DirectXInit(HWND _window, DirectX::XMFLOAT4X4 &_camera);
+	void DirectXInit(HWND _window);
 	void DirectXRun(DirectX::XMFLOAT4X4 &_camera);
+	void ResizeUpdate(HWND _window);
 };
 
