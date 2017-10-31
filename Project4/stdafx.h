@@ -21,6 +21,7 @@
 #include "d3d11.h"
 #include "PixelShader.csh"
 #include "VertexShader.csh"
+#include "objVertexShader.csh"
 #include <DirectXColors.h>
 
 // Structures
@@ -28,6 +29,13 @@ struct Vertex
 {
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT4 color;
+	DirectX::XMFLOAT3 normals;
+	DirectX::XMFLOAT2 uv;
+};
+
+struct VertexOBJ
+{
+	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT3 normals;
 	DirectX::XMFLOAT2 uv;
 };

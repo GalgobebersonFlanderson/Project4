@@ -1,0 +1,620 @@
+#
+#
+#
+
+newmtl 850ParT2 Mesh_Body6
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.296296 0.014392 0.000000
+Ks 0.792157 0.000000 0.023529
+Ns 2.316370
+map_Kd Body6_46.jpg
+
+newmtl 850anag Mesh_850anag5
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.428726 0.451386 0.473739
+Ks 1.000000 1.000000 1.000000
+Ns 403.428986
+map_Kd 850anag5_43.jpg
+
+newmtl 850anag2 Mesh_850anag3
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.428726 0.451386 0.473739
+Ks 1.000000 1.000000 1.000000
+Ns 403.428986
+map_Kd 850anag3_23.jpg
+
+newmtl 850anag3 Mesh_850anag4
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.428726 0.451386 0.473739
+Ks 1.000000 1.000000 1.000000
+Ns 403.428986
+map_Kd 850anag4_42.jpg
+
+newmtl 850anag4 Mesh_850anag2
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.428726 0.451386 0.473739
+Ks 1.000000 1.000000 1.000000
+Ns 403.428986
+map_Kd 850anag2_22.jpg
+
+newmtl 850anag6 Mesh_850anag0
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.428726 0.451386 0.473739
+Ks 1.000000 1.000000 1.000000
+Ns 403.428986
+map_Kd 850anag0_16.jpg
+
+newmtl 850anagT Mesh_850anag1
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.428726 0.451386 0.473739
+Ks 1.000000 1.000000 1.000000
+Ns 403.428986
+map_Kd 850anag1_17.jpg
+
+newmtl 850bajos Mesh_Pottery_clay7
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay7_30.jpg
+
+newmtl 850body Mesh_Body0
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.296296 0.014392 0.000000
+Ks 0.792157 0.000000 0.023529
+Ns 2.316370
+map_Kd Body0_5.jpg
+
+newmtl 850cana Mesh_Metallic_Varni6
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.078431
+Ks 0.733333 0.925490 1.000000
+Ns 6.049650
+map_Kd Metallic_Varni6_54.jpg
+
+newmtl 850cana2 Mesh_Metallic_Varni10
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.078431
+Ks 0.733333 0.925490 1.000000
+Ns 6.049650
+map_Kd Metallic_Varni10_62.jpg
+
+newmtl 850cana3 Mesh_Body11
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.296296 0.014392 0.000000
+Ks 0.792157 0.000000 0.023529
+Ns 2.316370
+map_Kd Body11_64.jpg
+
+newmtl 850capo Mesh_Body9
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.296296 0.014392 0.000000
+Ks 0.792157 0.000000 0.023529
+Ns 2.316370
+map_Kd Body9_55.jpg
+
+newmtl 850carc Mesh_Chrome4
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.681949 0.720702 0.731470
+Ks 1.000000 1.000000 1.000000
+Ns 114.433998
+map_Kd Chrome4_37.jpg
+
+newmtl 850carc2 Mesh_Chrome5
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.681949 0.720702 0.731470
+Ks 1.000000 1.000000 1.000000
+Ns 114.433998
+map_Kd Chrome5_38.jpg
+
+newmtl 850criD2 Mesh_Pottery_clay1
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay1_2.jpg
+
+newmtl 850criT2 Mesh_Pottery_clay0
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay0.jpg
+
+newmtl 850cris2 Mesh_Dark_smoked_gla2
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.498039 0.498039 0.498039
+Ks 1.000000 1.000000 1.000000
+Ns 34.466900
+map_Kd Dark_smoked_gla2_19.jpg
+
+newmtl 850crisD Mesh_Dark_smoked_gla1
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.498039 0.498039 0.498039
+Ks 1.000000 1.000000 1.000000
+Ns 34.466900
+map_Kd Dark_smoked_gla1_3.jpg
+
+newmtl 850crisT Mesh_Dark_smoked_gla0
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.498039 0.498039 0.498039
+Ks 1.000000 1.000000 1.000000
+Ns 34.466900
+map_Kd Dark_smoked_gla0_1.jpg
+
+newmtl 850crist Mesh_Dark_smoked_gla3
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.498039 0.498039 0.498039
+Ks 1.000000 1.000000 1.000000
+Ns 34.466900
+map_Kd Dark_smoked_gla3_20.jpg
+
+newmtl 850esp Mesh_Chrome1
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.681949 0.720702 0.731470
+Ks 1.000000 1.000000 1.000000
+Ns 114.433998
+map_Kd Chrome1_14.jpg
+
+newmtl 850esp2 Mesh_Chrome0
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.681949 0.720702 0.731470
+Ks 1.000000 1.000000 1.000000
+Ns 114.433998
+map_Kd Chrome0_11.jpg
+
+newmtl 850espD Mesh_Body1
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.296296 0.014392 0.000000
+Ks 0.792157 0.000000 0.023529
+Ns 2.316370
+map_Kd Body1_12.jpg
+
+newmtl 850espI Mesh_Body2
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.296296 0.014392 0.000000
+Ks 0.792157 0.000000 0.023529
+Ns 2.316370
+map_Kd Body2_13.jpg
+
+newmtl 850estri Mesh_Body8
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.296296 0.014392 0.000000
+Ks 0.792157 0.000000 0.023529
+Ns 2.316370
+map_Kd Body8_53.jpg
+
+newmtl 850farT Mesh_Body13
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.296296 0.014392 0.000000
+Ks 0.792157 0.000000 0.023529
+Ns 2.316370
+map_Kd Body13_75.jpg
+
+newmtl 850farT2 Mesh_Body12
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.296296 0.014392 0.000000
+Ks 0.792157 0.000000 0.023529
+Ns 2.316370
+map_Kd Body12_73.jpg
+
+newmtl 850farT3 Mesh_850faroN1
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 0.345098 0.000000
+Ks 1.000000 1.000000 1.000000
+Ns 403.428986
+map_Kd 850faroN1_76.jpg
+
+newmtl 850faro Mesh_Dark_smoked_gla4
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.498039 0.498039 0.498039
+Ks 1.000000 1.000000 1.000000
+Ns 34.466900
+map_Kd Dark_smoked_gla4_50.jpg
+
+newmtl 850frenM Mesh_Metallic_Varni4
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.078431
+Ks 0.733333 0.925490 1.000000
+Ns 6.049650
+map_Kd Metallic_Varni4_36.jpg
+
+newmtl 850front Mesh_initialShadingGr
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.003922 0.003922 0.003922
+Ks 0.772549 0.772549 0.772549
+Ns 8.166170
+map_Kd initialShadingGr_48.jpg
+
+newmtl 850goma Mesh_Metallic_Varni11
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.078431
+Ks 0.733333 0.925490 1.000000
+Ns 6.049650
+map_Kd Metallic_Varni11_63.jpg
+
+newmtl 850goma2 Mesh_Pottery_clay13
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay13_52.jpg
+
+newmtl 850goma3 Mesh_Pottery_clay4
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay4_10.jpg
+
+newmtl 850goma4 Mesh_Pottery_clay14
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay14_57.jpg
+
+newmtl 850goma5 Mesh_Pottery_clay3
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay3_9.jpg
+
+newmtl 850int Mesh_850faroN
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 0.345098 0.000000
+Ks 1.000000 1.000000 1.000000
+Ns 403.428986
+map_Kd 850faroN_49.jpg
+
+newmtl 850llant Mesh_Aluminium1
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.647059 0.647059 0.647059
+Ks 1.000000 1.000000 1.000000
+Ns 1.822120
+map_Kd Aluminium1_44.jpg
+
+newmtl 850llant2 Mesh_Aluminium2
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.647059 0.647059 0.647059
+Ks 1.000000 1.000000 1.000000
+Ns 1.822120
+map_Kd Aluminium2_68.jpg
+
+newmtl 850llant3 Mesh_Aluminium4
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.647059 0.647059 0.647059
+Ks 1.000000 1.000000 1.000000
+Ns 1.822120
+map_Kd Aluminium4_72.jpg
+
+newmtl 850llant4 Mesh_Aluminium3
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.647059 0.647059 0.647059
+Ks 1.000000 1.000000 1.000000
+Ns 1.822120
+map_Kd Aluminium3_70.jpg
+
+newmtl 850llave Mesh_Chrome7
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.681949 0.720702 0.731470
+Ks 1.000000 1.000000 1.000000
+Ns 114.433998
+map_Kd Chrome7_58.jpg
+
+newmtl 850llave2 Mesh_Chrome3
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.681949 0.720702 0.731470
+Ks 1.000000 1.000000 1.000000
+Ns 114.433998
+map_Kd Chrome3_26.jpg
+
+newmtl 850malet Mesh_Body3
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.296296 0.014392 0.000000
+Ks 0.792157 0.000000 0.023529
+Ns 2.316370
+map_Kd Body3_15.jpg
+
+newmtl 850mani Mesh_Metallic_Varni8
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.078431
+Ks 0.733333 0.925490 1.000000
+Ns 6.049650
+map_Kd Metallic_Varni8_60.jpg
+
+newmtl 850mani2 Mesh_Metallic_Varni7
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.078431
+Ks 0.733333 0.925490 1.000000
+Ns 6.049650
+map_Kd Metallic_Varni7_59.jpg
+
+newmtl 850mani3 Mesh_Metallic_Varni3
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.078431
+Ks 0.733333 0.925490 1.000000
+Ns 6.049650
+map_Kd Metallic_Varni3_28.jpg
+
+newmtl 850mani4 Mesh_Metallic_Varni2
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.078431
+Ks 0.733333 0.925490 1.000000
+Ns 6.049650
+map_Kd Metallic_Varni2_27.jpg
+
+newmtl 850matr Mesh_850matri1
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.389705 0.440660 0.500973
+Ks 1.000000 1.000000 1.000000
+Ns 11.023200
+map_Kd 850matri1_8.jpg
+
+newmtl 850matr2 Mesh_850matri0
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.389705 0.440660 0.500973
+Ks 1.000000 1.000000 1.000000
+Ns 11.023200
+map_Kd 850matri0_7.jpg
+
+newmtl 850mold Mesh_Metallic_Varni0
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.078431
+Ks 0.733333 0.925490 1.000000
+Ns 6.049650
+map_Kd Metallic_Varni0_4.jpg
+
+newmtl 850moldD Mesh_Pottery_clay6
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay6_29.jpg
+
+newmtl 850moldI Mesh_Metallic_Varni9
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.078431
+Ks 0.733333 0.925490 1.000000
+Ns 6.049650
+map_Kd Metallic_Varni9_61.jpg
+
+newmtl 850neum Mesh_Pottery_clay16
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay16_66.jpg
+
+newmtl 850neum2 Mesh_Pottery_clay17
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay17_67.jpg
+
+newmtl 850neum3 Mesh_Pottery_clay19
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay19_71.jpg
+
+newmtl 850neum4 Mesh_Pottery_clay18
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay18_69.jpg
+
+newmtl 850panel Mesh_850panel
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.268441 0.221179 0.168639
+Ks 1.000000 1.000000 1.000000
+Ns 174.164001
+map_Kd 850panel_32.jpg
+
+newmtl 850paraD Mesh_Body5
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.296296 0.014392 0.000000
+Ks 0.792157 0.000000 0.023529
+Ns 2.316370
+map_Kd Body5_45.jpg
+
+newmtl 850paraT Mesh_Body7
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.296296 0.014392 0.000000
+Ks 0.792157 0.000000 0.023529
+Ns 2.316370
+map_Kd Body7_47.jpg
+
+newmtl 850pmatr Mesh_Metallic_Varni5
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.000000
+Ks 0.733333 0.925490 1.000000
+Ns 6.049650
+map_Kd Metallic_Varni5_41.jpg
+
+newmtl 850pomo Mesh_Aluminium0
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.647059 0.647059 0.647059
+Ks 1.000000 1.000000 1.000000
+Ns 1.822120
+map_Kd Aluminium0_35.jpg
+
+newmtl 850pueD2 Mesh_Pottery_clay5
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.600000 0.223530 0.090196
+Ks 0.945098 0.607843 0.152941
+Ns 2.316370
+map_Kd Pottery_clay5_21.jpg
+
+newmtl 850puer2 Mesh_Body4
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.296296 0.014392 0.000000
+Ks 0.792157 0.000000 0.023529
+Ns 2.316370
+map_Kd Body4_25.jpg
+
+newmtl 850puerD Mesh_Pottery_clay15
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay15_65.jpg
+
+newmtl 850puert Mesh_Body10
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.296296 0.014392 0.000000
+Ks 0.792157 0.000000 0.023529
+Ns 2.316370
+map_Kd Body10_56.jpg
+
+newmtl 850rejill Mesh_Metallic_Varni1
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.000000
+Ks 0.733333 0.925490 1.000000
+Ns 6.049650
+map_Kd Metallic_Varni1_24.jpg
+
+newmtl 850ri_on Mesh_Chrome6
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.681949 0.720702 0.731470
+Ks 1.000000 1.000000 1.000000
+Ns 114.433998
+map_Kd Chrome6_51.jpg
+
+newmtl 850salp Mesh_Pottery_clay9
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay9_33.jpg
+
+newmtl 850salp2 Mesh_Pottery_clay10
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay10_34.jpg
+
+newmtl 850salpT Mesh_Pottery_clay8
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.600000 0.223530 0.090196
+Ks 0.945098 0.607843 0.152941
+Ns 2.316370
+map_Kd Pottery_clay8_31.jpg
+
+newmtl 850sillB Mesh_Pottery_clay11
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.600000 0.223530 0.090196
+Ks 0.945098 0.607843 0.152941
+Ns 2.316370
+map_Kd Pottery_clay11_39.jpg
+
+newmtl 850sillo Mesh_Pottery_clay2
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.600000 0.223530 0.090196
+Ks 0.945098 0.607843 0.152941
+Ns 2.316370
+map_Kd Pottery_clay2_6.jpg
+
+newmtl 850suelo Mesh_Pottery_clay12
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.600000 0.223530 0.090196
+Ks 0.945098 0.607843 0.152941
+Ns 2.316370
+map_Kd Pottery_clay12_40.jpg
+
+newmtl 850tubos Mesh_Chrome2
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.681949 0.720702 0.731470
+Ks 1.000000 1.000000 1.000000
+Ns 114.433998
+map_Kd Chrome2_18.jpg
+
+newmtl 850volan Mesh_Pottery_clay20
+illum 2
+Ka 0.000000 0.000000 0.000000
+Kd 0.027451 0.027451 0.027451
+Ks 0.129412 0.129412 0.129412
+Ns 2.316370
+map_Kd Pottery_clay20_74.jpg
+

@@ -11,6 +11,6 @@ public:
 	~UsefulStuff();
 	void GenerateCubeVertsAndIndices(Vertex _vertsArr[24], float _depthRange, RectF _rect, UINT _indArr[36]);
 	void UpdateCamera(DirectX::XMFLOAT4X4 &_camera, float const& _timer, const float _moveSpeed, const float _rotSpeed);
-	bool LoadOBJFile(const char *_path, std::vector<XMFLOAT3> &_verts, std::vector<XMFLOAT2> &_uvs, std::vector<XMFLOAT3> &_normals);
+	bool LoadOBJFile(const char *_path, std::vector<VertexOBJ> &_outVert);
 };
 

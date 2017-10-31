@@ -6,9 +6,7 @@ private:
 	//Generic Variables
 	UsefulStuff											utility;
 	UINT												cubeInd[36];
-	std::vector<XMFLOAT3>								verts;
-	std::vector<XMFLOAT2>								uvs;
-	std::vector<XMFLOAT3>								normals;
+	std::vector<VertexOBJ>								bmwVerts;
 
 	//Struct defines
 	Vertex												platformVerts[6];
@@ -20,7 +18,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Device>				m_pDevice = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext>			m_pContext = nullptr;
 	Microsoft::WRL::ComPtr<IDXGISwapChain>				m_pSwapChain = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout>			m_pInputLayout = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout>			m_pcubeInputLayout = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout>			m_pobjInputLayout = nullptr;
 	D3D_DRIVER_TYPE										m_DriverType;
 	D3D_FEATURE_LEVEL									m_FeatureLevel;
 	D3D11_VIEWPORT										m_ViewPort;
@@ -34,7 +33,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pConstBuffer = nullptr;
 
 	//DirectX shaders
-	Microsoft::WRL::ComPtr<ID3D11VertexShader>			m_pVertexShader = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader>			m_pcubeVertShader = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader>			m_pobjVertShader = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader>			m_pPixelShader = nullptr;
 
 	//Views
@@ -57,11 +57,15 @@ public:
 	void DirectXInit(HWND _window);
 	void DirectXRun(DirectX::XMFLOAT4X4 &_camera);
 	void ResizeUpdate(HWND _window);
+	void DX11Setup(HWND _window);
 	HRESULT CreateVertexBuffer();
-	HRESULT CreateVertexBuffer(std::vector<XMFLOAT3> &_vertVect, Microsoft::WRL::ComPtr<ID3D11Buffer> _buffer);
+	HRESULT CreateVertexBuffer(std::vector<VertexOBJ> &_vertVect, Microsoft::WRL::ComPtr<ID3D11Buffer> &_buffer);
 	HRESULT CreateIndexBuffer();
 	HRESULT CreateConstBuffer();
 	HRESULT CreateDepthStencil();
-	void DX11Setup(HWND _window);
+	HRESULT CreateCubeLayout();
+	HRESULT CreateOBJLayout();
+	void DrawCube();
+	void DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_buffer, std::vector<VertexOBJ> _verts);
 };
 

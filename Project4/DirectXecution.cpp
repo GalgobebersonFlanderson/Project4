@@ -12,8 +12,8 @@ DirectXecution::~DirectXecution()
 void DirectXecution::DirectXInit(HWND _window)
 {
 	//Model load
-	//bool bResult;
-	//bResult = utility.LoadOBJFile("BMW850.obj", verts, uvs, normals);
+	bool bResult;
+	bResult = utility.LoadOBJFile("BMW850/BMW850.obj", bmwVerts);
 
 	//Cube setup
 	cubeRect.left = -0.5f;
@@ -31,10 +31,14 @@ void DirectXecution::DirectXInit(HWND _window)
 	//Create stencil
 	result = CreateDepthStencil();
 
+	//Create layouts
+	result = CreateCubeLayout();
+	result = CreateOBJLayout();
+
 	//Create buffers
 	result = CreateVertexBuffer();
 	result = CreateIndexBuffer();
-	//result = CreateVertexBuffer(verts, m_pBmwVertexBuffer);
+	result = CreateVertexBuffer(bmwVerts, m_pBmwVertexBuffer);
 	result = CreateConstBuffer();
 
 	//Const buffer world and proj matricies setup
@@ -42,20 +46,9 @@ void DirectXecution::DirectXInit(HWND _window)
 	DirectX::XMStoreFloat4x4(&vramData.projMat, DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(55.0f), (float)BufferHeight / (float)BufferWidth, 0.1f, 100.0f)));
 
 	//Create shaders
-	result = m_pDevice->CreateVertexShader(VertexShader, sizeof(VertexShader), NULL, m_pVertexShader.GetAddressOf());
+	result = m_pDevice->CreateVertexShader(VertexShader, sizeof(VertexShader), NULL, m_pcubeVertShader.GetAddressOf());
+	result = m_pDevice->CreateVertexShader(objVertexShader, sizeof(objVertexShader), NULL, m_pobjVertShader.GetAddressOf());
 	result = m_pDevice->CreatePixelShader(PixelShader, sizeof(PixelShader), NULL, m_pPixelShader.GetAddressOf());
-
-	//Setup layout
-	D3D11_INPUT_ELEMENT_DESC vertexShaderLayout[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{ "NORMALS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-
-	//Create input layout
-	result = m_pDevice->CreateInputLayout(vertexShaderLayout, ARRAYSIZE(vertexShaderLayout), VertexShader, sizeof(VertexShader), m_pInputLayout.GetAddressOf());
 
 	//Create RTV
 	result = m_pSwapChain->GetBuffer(NULL, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(m_pBackBufferTexture.GetAddressOf()));
@@ -92,30 +85,10 @@ void DirectXecution::DirectXRun(DirectX::XMFLOAT4X4 &_camera)
 	m_pContext->RSSetViewports(1, &m_ViewPort);
 
 	//Binding buffers
-	UINT cubeVertStride = sizeof(Vertex);
-	UINT cubeVertOffset = 0;
-	UINT cubeIndOffset = 0;
 	m_pContext->UpdateSubresource(m_pConstBuffer.Get(), 0, NULL, &vramData, 0, 0);
-	m_pContext->IASetVertexBuffers(0, 1, m_pCubeVertexBuffer.GetAddressOf(), &cubeVertStride, &cubeVertOffset);
-	m_pContext->IASetIndexBuffer(m_pCubeIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, cubeIndOffset);
-
-	//Binding topology
-	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	//Binding input layout
-	m_pContext->IASetInputLayout(m_pInputLayout.Get());
-
-	//Binding shaders
-	m_pContext->VSSetShader(m_pVertexShader.Get(), 0, 0);
 	m_pContext->VSSetConstantBuffers(0, 1, m_pConstBuffer.GetAddressOf());
-	m_pContext->PSSetShader(m_pPixelShader.Get(), 0, 0);
-
-	//Binding SRV
-	ID3D11ShaderResourceView* texViews[] = { m_pSrv.Get() };
-	m_pContext->PSSetShaderResources(0, ARRAYSIZE(texViews), texViews);
-
-	//Draw
-	m_pContext->DrawIndexed(ARRAYSIZE(cubeInd), 0, 0);
+	DrawCube();
+	DrawOBJ(m_pBmwVertexBuffer, bmwVerts);
 
 	//Display stuff on screen
 	m_pSwapChain->Present(0, 0);
@@ -209,22 +182,22 @@ HRESULT DirectXecution::CreateVertexBuffer()
 }
 
 //For OBJ files
-HRESULT DirectXecution::CreateVertexBuffer(std::vector<XMFLOAT3> &_vertVect, Microsoft::WRL::ComPtr<ID3D11Buffer> _buffer)
+HRESULT DirectXecution::CreateVertexBuffer(std::vector<VertexOBJ> &_vert, Microsoft::WRL::ComPtr<ID3D11Buffer> &_buffer)
 {
 	//OBJ vertex buffer description
 	D3D11_BUFFER_DESC objVertBufferDesc;
 	ZeroMemory(&objVertBufferDesc, sizeof(objVertBufferDesc));
 	objVertBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	objVertBufferDesc.ByteWidth = sizeof(_vertVect) * (UINT)_vertVect.size();
+	objVertBufferDesc.ByteWidth = sizeof(VertexOBJ) * (UINT)_vert.size();
 	objVertBufferDesc.CPUAccessFlags = NULL;
 	objVertBufferDesc.MiscFlags = NULL;
-	objVertBufferDesc.StructureByteStride = sizeof(_vertVect);
+	objVertBufferDesc.StructureByteStride = sizeof(VertexOBJ);
 	objVertBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 
 	//OBJ vertex initial data
 	D3D11_SUBRESOURCE_DATA objVertInitData;
 	ZeroMemory(&objVertInitData, sizeof(objVertInitData));
-	objVertInitData.pSysMem = &_vertVect;
+	objVertInitData.pSysMem = &_vert[0];
 	objVertInitData.SysMemPitch = NULL;
 	objVertInitData.SysMemSlicePitch = NULL;
 
@@ -336,6 +309,84 @@ HRESULT DirectXecution::CreateDepthStencil()
 	result = m_pDevice->CreateDepthStencilView(m_pDepthStencil.Get(), &depthStencilViewDesc, m_pDepthStencilView.GetAddressOf());
 
 	return result;
+}
+
+HRESULT DirectXecution::CreateCubeLayout()
+{
+	//Setup layout
+	D3D11_INPUT_ELEMENT_DESC cubeVertShaderLayout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMALS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	//Create input layout
+	result = m_pDevice->CreateInputLayout(cubeVertShaderLayout, ARRAYSIZE(cubeVertShaderLayout), VertexShader, sizeof(VertexShader), m_pcubeInputLayout.GetAddressOf());
+
+	return result;
+}
+
+HRESULT DirectXecution::CreateOBJLayout()
+{
+	//Setup layout
+	D3D11_INPUT_ELEMENT_DESC objVertShaderLayout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMALS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	//Create input layout
+	result = m_pDevice->CreateInputLayout(objVertShaderLayout, ARRAYSIZE(objVertShaderLayout), objVertexShader, sizeof(objVertexShader), m_pobjInputLayout.GetAddressOf());
+
+	return result;
+}
+
+void DirectXecution::DrawCube()
+{
+	UINT cubeVertStride = sizeof(Vertex);
+	UINT cubeVertOffset = 0;
+	UINT cubeIndOffset = 0;
+
+	//Binding topology
+	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//Binding input layout
+	m_pContext->IASetInputLayout(m_pcubeInputLayout.Get());
+
+	//Binding shaders
+	m_pContext->VSSetShader(m_pcubeVertShader.Get(), 0, 0);
+	m_pContext->PSSetShader(m_pPixelShader.Get(), 0, 0);
+
+	//Binding SRV
+	ID3D11ShaderResourceView* texViews[] = { m_pSrv.Get() };
+	m_pContext->PSSetShaderResources(0, ARRAYSIZE(texViews), texViews);
+
+	m_pContext->IASetVertexBuffers(0, 1, m_pCubeVertexBuffer.GetAddressOf(), &cubeVertStride, &cubeVertOffset);
+	m_pContext->IASetIndexBuffer(m_pCubeIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, cubeIndOffset);
+	m_pContext->DrawIndexed(ARRAYSIZE(cubeInd), 0, 0);
+}
+
+void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_buffer, std::vector<VertexOBJ> _verts)
+{
+	UINT objVertStride = sizeof(VertexOBJ);
+	UINT objVertOffset = 0;
+	UINT objIndOffset = 0;
+
+	//Binding topology
+	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//Binding input layout
+	m_pContext->IASetInputLayout(m_pobjInputLayout.Get());
+
+	//Binding shaders
+	m_pContext->VSSetShader(m_pobjVertShader.Get(), 0, 0);
+	m_pContext->PSSetShader(m_pPixelShader.Get(), 0, 0);
+
+	m_pContext->IASetVertexBuffers(0, 1, _buffer.GetAddressOf(), &objVertStride, &objVertOffset);
+	m_pContext->Draw((UINT)_verts.size(), 0);
 }
 
 void DirectXecution::DX11Setup(HWND _window)
