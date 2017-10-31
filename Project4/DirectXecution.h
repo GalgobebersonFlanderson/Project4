@@ -6,11 +6,13 @@ private:
 	//Generic Variables
 	UsefulStuff											utility;
 	UINT												cubeInd[36];
+	std::vector<XMFLOAT3>								verts;
+	std::vector<XMFLOAT2>								uvs;
+	std::vector<XMFLOAT3>								normals;
 
 	//Struct defines
 	Vertex												platformVerts[6];
 	Vertex												cubeVerts[24];
-	Vertex												cube2Verts[24];
 	RectF												cubeRect;
 	Send_To_VRAM										vramData;
 
@@ -26,7 +28,9 @@ private:
 
 	//DirectX buffers
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pCubeVertexBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pBmwVertexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pCubeIndexBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pBmwIndexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pConstBuffer = nullptr;
 
 	//DirectX shaders
@@ -53,5 +57,11 @@ public:
 	void DirectXInit(HWND _window);
 	void DirectXRun(DirectX::XMFLOAT4X4 &_camera);
 	void ResizeUpdate(HWND _window);
+	HRESULT CreateVertexBuffer();
+	HRESULT CreateVertexBuffer(std::vector<XMFLOAT3> &_vertVect, Microsoft::WRL::ComPtr<ID3D11Buffer> _buffer);
+	HRESULT CreateIndexBuffer();
+	HRESULT CreateConstBuffer();
+	HRESULT CreateDepthStencil();
+	void DX11Setup(HWND _window);
 };
 

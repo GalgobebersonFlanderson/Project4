@@ -5,12 +5,14 @@
 
 #pragma comment(lib, "d3d11.lib")
 
+using namespace DirectX;
+
 #define MAX_LOADSTRING 100
 
 //Variables
 DirectXecution*										directx = nullptr;
 UsefulStuff											utility;
-DirectX::XMFLOAT4X4									camera;
+XMFLOAT4X4											camera;
 XTime												timer;
 HWND												window;
 
@@ -46,11 +48,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     }
 
 	//Set camera to LookAtLH
-	DirectX::XMVECTOR EyePos = { 0.0f, 0.0f, -4.0f, 0.0f };
-	DirectX::XMVECTOR FocusPos = { 0.0f, 0.0f, 0.0f, 0.0f };
-	DirectX::XMVECTOR UpDirection = { 0.0f, 1.0f, 0.0f, 0.0f };
+	XMVECTOR EyePos = { 0.0f, 0.0f, -4.0f, 0.0f };
+	XMVECTOR FocusPos = { 0.0f, 0.0f, 0.0f, 0.0f };
+	XMVECTOR UpDirection = { 0.0f, 1.0f, 0.0f, 0.0f };
 
-	DirectX::XMStoreFloat4x4(&camera, XMMatrixInverse(nullptr, DirectX::XMMatrixLookAtLH(EyePos, FocusPos, UpDirection)));
+	XMStoreFloat4x4(&camera, XMMatrixInverse(nullptr, XMMatrixLookAtLH(EyePos, FocusPos, UpDirection)));
 
 	//DirectX Init
 	directx = new DirectXecution();
@@ -171,8 +173,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
 	case WM_SIZE:
-		if (directx != nullptr)
-		directx->ResizeUpdate(window);
+		{
+			if (directx != nullptr)
+				directx->ResizeUpdate(window);
+		}
+		break;
+
+	case WM_MOUSEWHEEL:
+	{
+
+	}
 		break;
 
     case WM_PAINT:

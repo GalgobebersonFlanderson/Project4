@@ -211,3 +211,109 @@ void UsefulStuff::UpdateCamera(XMFLOAT4X4 &_camera, float const &_timer, const f
 	XMStoreFloat4x4(&_camera, XMLoadFloat4x4(&temp_cam));
 }
 
+bool UsefulStuff::LoadOBJFile(const char *_path, std::vector<XMFLOAT3> &_verts, std::vector<XMFLOAT2> &_uvs, std::vector<XMFLOAT3> &_normals)
+{
+	std::vector<unsigned int> vInds, uvInds, nInds;
+	std::vector<XMFLOAT3> temp_verts;
+	std::vector<XMFLOAT2> temp_uvs;
+	std::vector<XMFLOAT3> temp_normals;
+
+	FILE *file = nullptr;
+	fopen_s(&file, _path, "r");
+
+	if (file == NULL)
+	{
+		printf("Cannot open file.\n");
+		return false;
+	}
+
+	while (true)
+	{
+		char lineHeader[128];
+		int res = fscanf_s(file, "%s", lineHeader, _countof(lineHeader));
+
+		if (res == EOF)
+		{
+			fclose(file);
+			break;
+		}
+
+		if (strcmp(lineHeader, "v") == 0)
+		{
+			XMFLOAT3 vert;
+			fscanf_s(file, "%f %f %f\n", &vert.x, &vert.y, &vert.z);
+			temp_verts.push_back(vert);
+		} 
+
+		else if (strcmp(lineHeader, "vt") == 0)
+		{
+			XMFLOAT2 uv;
+			fscanf_s(file, "%f %f\n", &uv.x, &uv.y);
+			temp_uvs.push_back(uv);
+		}
+
+		else if (strcmp(lineHeader, "vn") == 0)
+		{
+			XMFLOAT3 normal;
+			fscanf_s(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
+			temp_normals.push_back(normal);
+		}
+
+		else if (strcmp(lineHeader, "f") == 0)
+		{
+			int vInd[3], uvInd[3], nInd[3];
+			int matches = fscanf_s(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vInd[0], &uvInd[0], &nInd[0],
+				&vInd[1], &uvInd[1], &nInd[1], &vInd[2], &uvInd[2],
+				&nInd[2]);
+
+			if (matches != 9)
+			{
+				printf("Index read failed.\n");
+				return false;
+			}
+
+			for (int i = 0; i < 3; ++i)
+			{
+				vInd[i] = -(vInd[i]);
+				uvInd[i] = -(uvInd[i]);
+				nInd[i] = -(nInd[i]);
+			}
+
+			vInds.push_back(vInd[0]);
+			vInds.push_back(vInd[1]);
+			vInds.push_back(vInd[2]);
+			uvInds.push_back(uvInd[0]);
+			uvInds.push_back(uvInd[1]);
+			uvInds.push_back(uvInd[2]);
+			nInds.push_back(nInd[0]);
+			nInds.push_back(nInd[1]);
+			nInds.push_back(nInd[2]);
+		}
+	}
+
+	unsigned int i;
+
+	for (i = 0; i < vInds.size(); ++i)
+	{
+		unsigned int vInd = vInds[i];
+		XMFLOAT3 vert = temp_verts[vInd - 1];
+		_verts.push_back(vert);
+	}
+
+	for (i = 0; i < uvInds.size(); ++i)
+	{
+		unsigned int uvInd = uvInds[i];
+		XMFLOAT2 uv = temp_uvs[uvInd - 1];
+		_uvs.push_back(uv);
+	}
+
+	for (i = 0; i < nInds.size(); ++i)
+	{
+		unsigned int nInd = nInds[i];
+		XMFLOAT3 normal = temp_normals[nInd - 1];
+		_normals.push_back(normal);
+	}
+
+	return true;
+}
+
