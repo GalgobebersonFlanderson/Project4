@@ -13,13 +13,14 @@ void DirectXecution::DirectXInit(HWND _window)
 {
 	//Model load
 	bool bResult;
-	bResult = utility.LoadOBJFile("BMW850/BMW850.obj", bmwVerts);
+	bResult = utility.LoadOBJFile("pyramid.obj", objVerts, objInds);
 
 	//Cube setup
 	cubeRect.left = -0.5f;
 	cubeRect.right = 0.5f;
 	cubeRect.top = 0.5f;
 	cubeRect.bottom = -0.5f;
+	XMStoreFloat4x4(&cubeMat, XMMatrixIdentity());
 	utility.GenerateCubeVertsAndIndices(cubeVerts, 0.5f, cubeRect, cubeInd);
 
 	//Initialize directX11
@@ -38,7 +39,8 @@ void DirectXecution::DirectXInit(HWND _window)
 	//Create buffers
 	result = CreateVertexBuffer();
 	result = CreateIndexBuffer();
-	result = CreateVertexBuffer(bmwVerts, m_pBmwVertexBuffer);
+	result = CreateVertexBuffer(objVerts, m_pobjVertexBuffer);
+	result = CreateIndexBuffer(objInds, m_pobjIndexBuffer);
 	result = CreateConstBuffer();
 
 	//Const buffer world and proj matricies setup
@@ -88,7 +90,7 @@ void DirectXecution::DirectXRun(DirectX::XMFLOAT4X4 &_camera)
 	m_pContext->UpdateSubresource(m_pConstBuffer.Get(), 0, NULL, &vramData, 0, 0);
 	m_pContext->VSSetConstantBuffers(0, 1, m_pConstBuffer.GetAddressOf());
 	DrawCube();
-	DrawOBJ(m_pBmwVertexBuffer, bmwVerts);
+	DrawOBJ(m_pobjVertexBuffer, objVerts);
 
 	//Display stuff on screen
 	m_pSwapChain->Present(0, 0);
@@ -203,6 +205,31 @@ HRESULT DirectXecution::CreateVertexBuffer(std::vector<VertexOBJ> &_vert, Micros
 
 	//Create OBJ buffer
 	result = m_pDevice->CreateBuffer(&objVertBufferDesc, &objVertInitData, _buffer.GetAddressOf());
+
+	return result;
+}
+
+//For OBJ files
+HRESULT DirectXecution::CreateIndexBuffer(std::vector<unsigned int> _indVect, Microsoft::WRL::ComPtr<ID3D11Buffer> &_buffer)
+{
+	//Cube index buffer description
+	D3D11_BUFFER_DESC objIndBufferDesc;
+	ZeroMemory(&objIndBufferDesc, sizeof(objIndBufferDesc));
+	objIndBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	objIndBufferDesc.ByteWidth = sizeof(unsigned int) * (UINT)_indVect.size();
+	objIndBufferDesc.CPUAccessFlags = NULL;
+	objIndBufferDesc.MiscFlags = NULL;
+	objIndBufferDesc.StructureByteStride = sizeof(unsigned int);
+	objIndBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+
+	//Cube index initial data
+	D3D11_SUBRESOURCE_DATA objIndInitData;
+	ZeroMemory(&objIndInitData, sizeof(objIndInitData));
+	objIndInitData.pSysMem = &_indVect[0];
+	objIndInitData.SysMemPitch = NULL;
+	objIndInitData.SysMemSlicePitch = NULL;
+
+	result = m_pDevice->CreateBuffer(&objIndBufferDesc, &objIndInitData, _buffer.GetAddressOf());
 
 	return result;
 }
@@ -386,7 +413,8 @@ void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_buffer, std:
 	m_pContext->PSSetShader(m_pPixelShader.Get(), 0, 0);
 
 	m_pContext->IASetVertexBuffers(0, 1, _buffer.GetAddressOf(), &objVertStride, &objVertOffset);
-	m_pContext->Draw((UINT)_verts.size(), 0);
+	m_pContext->IASetIndexBuffer(m_pobjIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, objIndOffset);
+	m_pContext->DrawIndexed((UINT)objInds.size(), 0, 0);
 }
 
 void DirectXecution::DX11Setup(HWND _window)

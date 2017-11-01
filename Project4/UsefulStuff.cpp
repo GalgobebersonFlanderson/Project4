@@ -211,8 +211,9 @@ void UsefulStuff::UpdateCamera(XMFLOAT4X4 &_camera, float const &_timer, const f
 	XMStoreFloat4x4(&_camera, XMLoadFloat4x4(&temp_cam));
 }
 
-bool UsefulStuff::LoadOBJFile(const char *_path, std::vector<VertexOBJ> &_outVert)
+bool UsefulStuff::LoadOBJFile(const char *_path, std::vector<VertexOBJ> &_outVert, std::vector<unsigned int> &_outInd)
 {
+	std::vector<unsigned int> vInds, uvInds, nInds;
 	std::vector<XMFLOAT3> temp_verts;
 	std::vector<XMFLOAT2> temp_uvs;
 	std::vector<XMFLOAT3> temp_normals;
@@ -260,7 +261,6 @@ bool UsefulStuff::LoadOBJFile(const char *_path, std::vector<VertexOBJ> &_outVer
 
 		else if (strcmp(lineHeader, "f") == 0)
 		{
-			VertexOBJ _vert[3];
 			int vInd[3], uvInd[3], nInd[3];
 			int matches = fscanf_s(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vInd[0], &uvInd[0], &nInd[0],
 				&vInd[1], &uvInd[1], &nInd[1], &vInd[2], &uvInd[2],
@@ -279,43 +279,36 @@ bool UsefulStuff::LoadOBJFile(const char *_path, std::vector<VertexOBJ> &_outVer
 			//	nInd[i] = -(nInd[i]);
 			//}
 
-			_vert[0].pos = temp_verts[vInd[0] - 1];
-			_vert[0].uv = temp_uvs[uvInd[0] - 1];
-			_vert[0].normals = temp_normals[nInd[0] - 1];
-			_outVert.push_back(_vert[0]);
-			_vert[1].pos = temp_verts[vInd[1] - 1];
-			_vert[1].uv = temp_uvs[uvInd[1] - 1];
-			_vert[1].normals = temp_normals[nInd[1] - 1];
-			_outVert.push_back(_vert[1]);
-			_vert[2].pos = temp_verts[vInd[2] - 1];
-			_vert[2].uv = temp_uvs[uvInd[2] - 1];
-			_vert[2].normals = temp_normals[nInd[2] - 1];
-			_outVert.push_back(_vert[2]);
+			vInds.push_back(vInd[0]);
+			vInds.push_back(vInd[1]);
+			vInds.push_back(vInd[2]);
+			uvInds.push_back(uvInd[0]);
+			uvInds.push_back(uvInd[1]);
+			uvInds.push_back(uvInd[2]);
+			nInds.push_back(nInd[0]);
+			nInds.push_back(nInd[1]);
+			nInds.push_back(nInd[2]);
 		}
 	}
 
-	//unsigned int i;
-	//
-	//for (i = 0; i < vInds.size(); ++i)
-	//{
-	//	unsigned int vInd = vInds[i];
-	//	XMFLOAT3 vert = temp_verts[vInd - 1];
-	//	_verts.push_back(vert);
-	//}
-	//
-	//for (i = 0; i < uvInds.size(); ++i)
-	//{
-	//	unsigned int uvInd = uvInds[i];
-	//	XMFLOAT2 uv = temp_uvs[uvInd - 1];
-	//	_uvs.push_back(uv);
-	//}
-	//
-	//for (i = 0; i < nInds.size(); ++i)
-	//{
-	//	unsigned int nInd = nInds[i];
-	//	XMFLOAT3 normal = temp_normals[nInd - 1];
-	//	_normals.push_back(normal);
-	//}
+	for (unsigned int i = 0; i < vInds.size(); ++i)
+	{
+		VertexOBJ tempVert;
+		unsigned int vInd = vInds[i];
+		unsigned int uvInd = uvInds[i];
+		unsigned int nInd = nInds[i];
+
+		XMFLOAT3 vert = temp_verts[vInd - 1];
+		XMFLOAT2 uv = temp_uvs[uvInd - 1];
+		XMFLOAT3 normal = temp_normals[nInd - 1];
+
+		tempVert.pos = vert;
+		tempVert.uv = uv;
+		tempVert.normals = normal;
+
+		_outVert.push_back(tempVert);
+		_outInd.push_back(i);
+	}
 
 	return true;
 }

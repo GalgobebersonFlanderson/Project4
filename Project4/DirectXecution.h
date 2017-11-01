@@ -6,7 +6,12 @@ private:
 	//Generic Variables
 	UsefulStuff											utility;
 	UINT												cubeInd[36];
-	std::vector<VertexOBJ>								bmwVerts;
+	std::vector<VertexOBJ>								objVerts;
+	std::vector<unsigned int>							objInds;
+
+	//Matricies
+	XMFLOAT4X4											cubeMat;
+	XMFLOAT4X4											objMat;
 
 	//Struct defines
 	Vertex												platformVerts[6];
@@ -27,9 +32,9 @@ private:
 
 	//DirectX buffers
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pCubeVertexBuffer = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pBmwVertexBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pobjVertexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pCubeIndexBuffer = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pBmwIndexBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pobjIndexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pConstBuffer = nullptr;
 
 	//DirectX shaders
@@ -60,6 +65,7 @@ public:
 	void DX11Setup(HWND _window);
 	HRESULT CreateVertexBuffer();
 	HRESULT CreateVertexBuffer(std::vector<VertexOBJ> &_vertVect, Microsoft::WRL::ComPtr<ID3D11Buffer> &_buffer);
+	HRESULT CreateIndexBuffer(std::vector<unsigned int> _indVect, Microsoft::WRL::ComPtr<ID3D11Buffer> &_buffer);
 	HRESULT CreateIndexBuffer();
 	HRESULT CreateConstBuffer();
 	HRESULT CreateDepthStencil();
