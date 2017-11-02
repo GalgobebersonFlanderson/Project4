@@ -11,5 +11,8 @@ struct INPUT_PIXEL
 
 float4 main(INPUT_PIXEL colorFromRasterizer) : SV_TARGET
 {
-	return tex.Sample(texSample, colorFromRasterizer.uv);
+    float4 texColor = tex.Sample(texSample, colorFromRasterizer.uv);
+    if (texColor.a <= 0.5f)
+        discard;
+    return texColor;
 }

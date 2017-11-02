@@ -211,6 +211,26 @@ void UsefulStuff::UpdateCamera(XMFLOAT4X4 &_camera, float const &_timer, const f
 	XMStoreFloat4x4(&_camera, XMLoadFloat4x4(&temp_cam));
 }
 
+XMMATRIX UsefulStuff::Translate(XMFLOAT3 _xyz, XMMATRIX _mat)
+{
+	_mat = XMMatrixTranspose((XMMatrixTranslation(_xyz.x, _xyz.y, _xyz.z)));
+	return _mat;
+}
+
+XMMATRIX UsefulStuff::Scale(XMFLOAT3 _xyz, XMMATRIX _mat)
+{
+	_mat = XMMatrixScaling(_xyz.x, _xyz.y, _xyz.z);
+	return _mat;
+}
+
+XMMATRIX UsefulStuff::Rotate(XMFLOAT3 _xyz, XMMATRIX _mat)
+{
+	_mat = XMMatrixRotationX(_xyz.x);
+	_mat = XMMatrixRotationX(_xyz.y);
+	_mat = XMMatrixRotationX(_xyz.z);
+	return _mat;
+}
+
 bool UsefulStuff::LoadOBJFile(const char *_path, std::vector<VertexOBJ> &_outVert, std::vector<unsigned int> &_outInd)
 {
 	std::vector<unsigned int> vInds, uvInds, nInds;
@@ -249,6 +269,7 @@ bool UsefulStuff::LoadOBJFile(const char *_path, std::vector<VertexOBJ> &_outVer
 		{
 			XMFLOAT2 uv;
 			fscanf_s(file, "%f %f\n", &uv.x, &uv.y);
+			uv.y = 1.0f - uv.y;
 			temp_uvs.push_back(uv);
 		}
 
@@ -271,13 +292,6 @@ bool UsefulStuff::LoadOBJFile(const char *_path, std::vector<VertexOBJ> &_outVer
 				printf("Index read failed.\n");
 				return false;
 			}
-
-			//for (int i = 0; i < 3; ++i)
-			//{
-			//	vInd[i] = -(vInd[i]);
-			//	uvInd[i] = -(uvInd[i]);
-			//	nInd[i] = -(nInd[i]);
-			//}
 
 			vInds.push_back(vInd[0]);
 			vInds.push_back(vInd[1]);

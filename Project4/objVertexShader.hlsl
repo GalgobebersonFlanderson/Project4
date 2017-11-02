@@ -15,6 +15,7 @@ struct INPUT_VERTEX
 struct OUTPUT_VERTEX
 {
 	float4 position : SV_POSITION;
+	float4 color : COLOR;
 	float3 normals : NORMALS;
 	float2 uv : UV;
 };
@@ -30,6 +31,7 @@ OUTPUT_VERTEX main(INPUT_VERTEX input)
 
 	output.position = mul(output.position, finalMat);
 	output.normals = input.normals;
+	output.color = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	output.uv = input.uv;
 	return output;
 }

@@ -10,8 +10,8 @@ private:
 	std::vector<unsigned int>							objInds;
 
 	//Matricies
-	XMFLOAT4X4											cubeMat;
-	XMFLOAT4X4											objMat;
+	XMMATRIX											cubeMat = XMMatrixIdentity();
+	XMMATRIX											bearMat = XMMatrixIdentity();
 
 	//Struct defines
 	Vertex												platformVerts[6];
@@ -44,13 +44,15 @@ private:
 
 	//Views
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_pRtv = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pSrv = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pcubeSrv = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pbearSrv = nullptr;
 
 	//Resources
 	Microsoft::WRL::ComPtr<ID3D11Resource>				m_pResource = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pBackBufferTexture = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pDepthStencil = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pBrickTexture = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pBearTexture = nullptr;
 
 	//Depth stencil
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState>		m_pDepthStencilState = nullptr;

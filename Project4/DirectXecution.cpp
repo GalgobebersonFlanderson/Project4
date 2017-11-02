@@ -13,21 +13,29 @@ void DirectXecution::DirectXInit(HWND _window)
 {
 	//Model load
 	bool bResult;
-	bResult = utility.LoadOBJFile("pyramid.obj", objVerts, objInds);
+	bResult = utility.LoadOBJFile("Krabby Patty/krabbypattie01.obj", objVerts, objInds);
+	//bResult = utility.LoadOBJFile("Monokuma/Monokuma-2.obj", objVerts, objInds);
+	//bResult = utility.LoadOBJFile("pyramid.obj", objVerts, objInds);
 
 	//Cube setup
 	cubeRect.left = -0.5f;
 	cubeRect.right = 0.5f;
 	cubeRect.top = 0.5f;
 	cubeRect.bottom = -0.5f;
-	XMStoreFloat4x4(&cubeMat, XMMatrixIdentity());
 	utility.GenerateCubeVertsAndIndices(cubeVerts, 0.5f, cubeRect, cubeInd);
+
+	//Adjusting matricies
+	cubeMat = utility.Translate(XMFLOAT3(0.0f, 0.0f, 3.0f), cubeMat);
+	bearMat = utility.Translate(XMFLOAT3(0.0f, -1.0f, 0.0f), bearMat);
+	bearMat = utility.Scale(XMFLOAT3(0.1f, 0.1f, 0.1f), bearMat);
 
 	//Initialize directX11
 	DX11Setup(_window);
 
 	//Create texture
-	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"bricks.dds", (ID3D11Resource**)m_pBrickTexture.GetAddressOf(), m_pSrv.GetAddressOf());
+	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"bricks.dds", (ID3D11Resource**)m_pBrickTexture.GetAddressOf(), m_pcubeSrv.GetAddressOf());
+	//result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Monokuma/kuma00_p4.dds", (ID3D11Resource**)m_pBearTexture.GetAddressOf(), m_pbearSrv.GetAddressOf());
+	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Krabby Patty/krabbypattie01.dds", (ID3D11Resource**)m_pBearTexture.GetAddressOf(), m_pbearSrv.GetAddressOf());
 
 	//Create stencil
 	result = CreateDepthStencil();
@@ -44,7 +52,6 @@ void DirectXecution::DirectXInit(HWND _window)
 	result = CreateConstBuffer();
 
 	//Const buffer world and proj matricies setup
-	DirectX::XMStoreFloat4x4(&vramData.worldMat, DirectX::XMMatrixIdentity());
 	DirectX::XMStoreFloat4x4(&vramData.projMat, DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(55.0f), (float)BufferHeight / (float)BufferWidth, 0.1f, 100.0f)));
 
 	//Create shaders
@@ -74,20 +81,19 @@ void DirectXecution::DirectXRun(DirectX::XMFLOAT4X4 &_camera)
 	//Binding depth stencil
 	m_pContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 1);
 
+	//Clearing stencil
+	m_pContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+
 	//Binding RTV
 	m_pContext->OMSetRenderTargets(1, m_pRtv.GetAddressOf(), m_pDepthStencilView.Get());
 
 	//Clearing RTV
 	m_pContext->ClearRenderTargetView(m_pRtv.Get(), DirectX::Colors::WhiteSmoke);
 
-	//Clearing stencil
-	m_pContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-
 	//Binding viewport
 	m_pContext->RSSetViewports(1, &m_ViewPort);
 
 	//Binding buffers
-	m_pContext->UpdateSubresource(m_pConstBuffer.Get(), 0, NULL, &vramData, 0, 0);
 	m_pContext->VSSetConstantBuffers(0, 1, m_pConstBuffer.GetAddressOf());
 	DrawCube();
 	DrawOBJ(m_pobjVertexBuffer, objVerts);
@@ -377,6 +383,10 @@ void DirectXecution::DrawCube()
 	UINT cubeVertOffset = 0;
 	UINT cubeIndOffset = 0;
 
+	//Send matrix
+	DirectX::XMStoreFloat4x4(&vramData.worldMat, cubeMat);
+	m_pContext->UpdateSubresource(m_pConstBuffer.Get(), 0, NULL, &vramData, 0, 0);
+
 	//Binding topology
 	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -388,8 +398,7 @@ void DirectXecution::DrawCube()
 	m_pContext->PSSetShader(m_pPixelShader.Get(), 0, 0);
 
 	//Binding SRV
-	ID3D11ShaderResourceView* texViews[] = { m_pSrv.Get() };
-	m_pContext->PSSetShaderResources(0, ARRAYSIZE(texViews), texViews);
+	m_pContext->PSSetShaderResources(0, 1, m_pcubeSrv.GetAddressOf());
 
 	m_pContext->IASetVertexBuffers(0, 1, m_pCubeVertexBuffer.GetAddressOf(), &cubeVertStride, &cubeVertOffset);
 	m_pContext->IASetIndexBuffer(m_pCubeIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, cubeIndOffset);
@@ -402,6 +411,10 @@ void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_buffer, std:
 	UINT objVertOffset = 0;
 	UINT objIndOffset = 0;
 
+	//Sending matrix
+	DirectX::XMStoreFloat4x4(&vramData.worldMat, bearMat);
+	m_pContext->UpdateSubresource(m_pConstBuffer.Get(), 0, NULL, &vramData, 0, 0);
+
 	//Binding topology
 	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -411,6 +424,9 @@ void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_buffer, std:
 	//Binding shaders
 	m_pContext->VSSetShader(m_pobjVertShader.Get(), 0, 0);
 	m_pContext->PSSetShader(m_pPixelShader.Get(), 0, 0);
+
+	//Binding SRV
+	m_pContext->PSSetShaderResources(0, 1, m_pbearSrv.GetAddressOf());
 
 	m_pContext->IASetVertexBuffers(0, 1, _buffer.GetAddressOf(), &objVertStride, &objVertOffset);
 	m_pContext->IASetIndexBuffer(m_pobjIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, objIndOffset);

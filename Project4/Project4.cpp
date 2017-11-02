@@ -78,7 +78,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		directx->DirectXRun(camera);
 
 		//Camera
-		utility.UpdateCamera(camera, (float)timer.Delta(), 5.0f, 10.0f);
+		utility.UpdateCamera(camera, (float)timer.Delta(), 5.0f, 5.0f);
     }
 
 	delete directx;
