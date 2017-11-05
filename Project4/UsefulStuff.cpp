@@ -213,21 +213,21 @@ void UsefulStuff::UpdateCamera(XMFLOAT4X4 &_camera, float const &_timer, const f
 
 XMMATRIX UsefulStuff::Translate(XMFLOAT3 _xyz, XMMATRIX _mat)
 {
-	_mat = XMMatrixTranspose((XMMatrixTranslation(_xyz.x, _xyz.y, _xyz.z)));
+	_mat *= XMMatrixTranspose(XMMatrixTranslation(_xyz.x, _xyz.y, _xyz.z));
 	return _mat;
 }
 
 XMMATRIX UsefulStuff::Scale(XMFLOAT3 _xyz, XMMATRIX _mat)
 {
-	_mat = XMMatrixScaling(_xyz.x, _xyz.y, _xyz.z);
+	_mat *= XMMatrixScaling(_xyz.x, _xyz.y, _xyz.z);
 	return _mat;
 }
 
 XMMATRIX UsefulStuff::Rotate(XMFLOAT3 _xyz, XMMATRIX _mat)
 {
-	_mat = XMMatrixRotationX(_xyz.x);
-	_mat = XMMatrixRotationX(_xyz.y);
-	_mat = XMMatrixRotationX(_xyz.z);
+	_mat *= XMMatrixRotationX(_xyz.x);
+	_mat *= XMMatrixRotationY(_xyz.y);
+	_mat *= XMMatrixRotationZ(_xyz.z);
 	return _mat;
 }
 

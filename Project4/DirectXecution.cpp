@@ -11,11 +11,17 @@ DirectXecution::~DirectXecution()
 
 void DirectXecution::DirectXInit(HWND _window)
 {
+	//Camera var setup
+	angleY = 55.0f;
+	nearP = 0.1f;
+	farP = 100.0f;
+	width = 1000.0f;
+	height = 1000.0f;
+
 	//Model load
 	bool bResult;
-	bResult = utility.LoadOBJFile("Krabby Patty/krabbypattie01.obj", objVerts, objInds);
+	bResult = utility.LoadOBJFile("Krabby Patty/krabbypattie01.obj", pattyVerts, pattyInds);
 	//bResult = utility.LoadOBJFile("Monokuma/Monokuma-2.obj", objVerts, objInds);
-	//bResult = utility.LoadOBJFile("pyramid.obj", objVerts, objInds);
 
 	//Cube setup
 	cubeRect.left = -0.5f;
@@ -26,16 +32,16 @@ void DirectXecution::DirectXInit(HWND _window)
 
 	//Adjusting matricies
 	cubeMat = utility.Translate(XMFLOAT3(0.0f, 0.0f, 3.0f), cubeMat);
-	bearMat = utility.Translate(XMFLOAT3(0.0f, -1.0f, 0.0f), bearMat);
-	bearMat = utility.Scale(XMFLOAT3(0.1f, 0.1f, 0.1f), bearMat);
+	pattyMat = utility.Translate(XMFLOAT3(0.0f, -0.5f, 0.0f), pattyMat);
+	pattyMat = utility.Scale(XMFLOAT3(0.2f, 0.2f, 0.2f), pattyMat);
 
 	//Initialize directX11
 	DX11Setup(_window);
 
 	//Create texture
-	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"bricks.dds", (ID3D11Resource**)m_pBrickTexture.GetAddressOf(), m_pcubeSrv.GetAddressOf());
+	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"bricks.dds", (ID3D11Resource**)m_pBrickTexture.GetAddressOf(), m_pCubeSrv.GetAddressOf());
 	//result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Monokuma/kuma00_p4.dds", (ID3D11Resource**)m_pBearTexture.GetAddressOf(), m_pbearSrv.GetAddressOf());
-	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Krabby Patty/krabbypattie01.dds", (ID3D11Resource**)m_pBearTexture.GetAddressOf(), m_pbearSrv.GetAddressOf());
+	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Krabby Patty/krabbypattie01.dds", (ID3D11Resource**)m_pPattyTexture.GetAddressOf(), m_pPattySrv.GetAddressOf());
 
 	//Create stencil
 	result = CreateDepthStencil();
@@ -47,16 +53,14 @@ void DirectXecution::DirectXInit(HWND _window)
 	//Create buffers
 	result = CreateVertexBuffer();
 	result = CreateIndexBuffer();
-	result = CreateVertexBuffer(objVerts, m_pobjVertexBuffer);
-	result = CreateIndexBuffer(objInds, m_pobjIndexBuffer);
+	result = CreateVertexBuffer(pattyVerts, m_pPattyVertexBuffer);
+	result = CreateIndexBuffer(pattyInds, m_pPattyIndexBuffer);
 	result = CreateConstBuffer();
 
-	//Const buffer world and proj matricies setup
-	DirectX::XMStoreFloat4x4(&vramData.projMat, DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(55.0f), (float)BufferHeight / (float)BufferWidth, 0.1f, 100.0f)));
 
 	//Create shaders
-	result = m_pDevice->CreateVertexShader(VertexShader, sizeof(VertexShader), NULL, m_pcubeVertShader.GetAddressOf());
-	result = m_pDevice->CreateVertexShader(objVertexShader, sizeof(objVertexShader), NULL, m_pobjVertShader.GetAddressOf());
+	result = m_pDevice->CreateVertexShader(VertexShader, sizeof(VertexShader), NULL, m_pCubeVertShader.GetAddressOf());
+	result = m_pDevice->CreateVertexShader(objVertexShader, sizeof(objVertexShader), NULL, m_pObjVertShader.GetAddressOf());
 	result = m_pDevice->CreatePixelShader(PixelShader, sizeof(PixelShader), NULL, m_pPixelShader.GetAddressOf());
 
 	//Create RTV
@@ -75,8 +79,16 @@ void DirectXecution::DirectXInit(HWND _window)
 
 void DirectXecution::DirectXRun(DirectX::XMFLOAT4X4 &_camera)
 {
-	//Setting const buffer view matrix
+	//Rotating stuff
+	cubeMat = utility.Rotate(XMFLOAT3(0.0003f, 0.001f, 0.0007f), cubeMat);
+	pattyMat = utility.Rotate(XMFLOAT3(0.0f, 0.001f, 0.0f), pattyMat);
+
+	//Changing angleY and Near and Far
+	AdjZoomAndNearFarCheck(1.0f, 1.0f);
+
+	//Setting const buffer view and proj matrix
 	DirectX::XMStoreFloat4x4(&vramData.viewMat, DirectX::XMMatrixTranspose(XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&_camera))));
+	DirectX::XMStoreFloat4x4(&vramData.projMat, DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(angleY), width / height, nearP, farP)));
 
 	//Binding depth stencil
 	m_pContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 1);
@@ -96,7 +108,7 @@ void DirectXecution::DirectXRun(DirectX::XMFLOAT4X4 &_camera)
 	//Binding buffers
 	m_pContext->VSSetConstantBuffers(0, 1, m_pConstBuffer.GetAddressOf());
 	DrawCube();
-	DrawOBJ(m_pobjVertexBuffer, objVerts);
+	DrawOBJ(m_pPattyVertexBuffer, m_pPattyIndexBuffer, m_pPattySrv, pattyVerts, pattyInds);
 
 	//Display stuff on screen
 	m_pSwapChain->Present(0, 0);
@@ -356,7 +368,7 @@ HRESULT DirectXecution::CreateCubeLayout()
 	};
 
 	//Create input layout
-	result = m_pDevice->CreateInputLayout(cubeVertShaderLayout, ARRAYSIZE(cubeVertShaderLayout), VertexShader, sizeof(VertexShader), m_pcubeInputLayout.GetAddressOf());
+	result = m_pDevice->CreateInputLayout(cubeVertShaderLayout, ARRAYSIZE(cubeVertShaderLayout), VertexShader, sizeof(VertexShader), m_pCubeInputLayout.GetAddressOf());
 
 	return result;
 }
@@ -372,7 +384,7 @@ HRESULT DirectXecution::CreateOBJLayout()
 	};
 
 	//Create input layout
-	result = m_pDevice->CreateInputLayout(objVertShaderLayout, ARRAYSIZE(objVertShaderLayout), objVertexShader, sizeof(objVertexShader), m_pobjInputLayout.GetAddressOf());
+	result = m_pDevice->CreateInputLayout(objVertShaderLayout, ARRAYSIZE(objVertShaderLayout), objVertexShader, sizeof(objVertexShader), m_pObjInputLayout.GetAddressOf());
 
 	return result;
 }
@@ -391,46 +403,92 @@ void DirectXecution::DrawCube()
 	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//Binding input layout
-	m_pContext->IASetInputLayout(m_pcubeInputLayout.Get());
+	m_pContext->IASetInputLayout(m_pCubeInputLayout.Get());
 
 	//Binding shaders
-	m_pContext->VSSetShader(m_pcubeVertShader.Get(), 0, 0);
+	m_pContext->VSSetShader(m_pCubeVertShader.Get(), 0, 0);
 	m_pContext->PSSetShader(m_pPixelShader.Get(), 0, 0);
 
 	//Binding SRV
-	m_pContext->PSSetShaderResources(0, 1, m_pcubeSrv.GetAddressOf());
+	m_pContext->PSSetShaderResources(0, 1, m_pCubeSrv.GetAddressOf());
 
 	m_pContext->IASetVertexBuffers(0, 1, m_pCubeVertexBuffer.GetAddressOf(), &cubeVertStride, &cubeVertOffset);
 	m_pContext->IASetIndexBuffer(m_pCubeIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, cubeIndOffset);
 	m_pContext->DrawIndexed(ARRAYSIZE(cubeInd), 0, 0);
 }
 
-void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_buffer, std::vector<VertexOBJ> _verts)
+void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &_iBuffer, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> &_srv, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds)
 {
 	UINT objVertStride = sizeof(VertexOBJ);
 	UINT objVertOffset = 0;
 	UINT objIndOffset = 0;
 
 	//Sending matrix
-	DirectX::XMStoreFloat4x4(&vramData.worldMat, bearMat);
+	DirectX::XMStoreFloat4x4(&vramData.worldMat, pattyMat);
 	m_pContext->UpdateSubresource(m_pConstBuffer.Get(), 0, NULL, &vramData, 0, 0);
 
 	//Binding topology
 	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//Binding input layout
-	m_pContext->IASetInputLayout(m_pobjInputLayout.Get());
+	m_pContext->IASetInputLayout(m_pObjInputLayout.Get());
 
 	//Binding shaders
-	m_pContext->VSSetShader(m_pobjVertShader.Get(), 0, 0);
+	m_pContext->VSSetShader(m_pObjVertShader.Get(), 0, 0);
 	m_pContext->PSSetShader(m_pPixelShader.Get(), 0, 0);
 
 	//Binding SRV
-	m_pContext->PSSetShaderResources(0, 1, m_pbearSrv.GetAddressOf());
+	m_pContext->PSSetShaderResources(0, 1, _srv.GetAddressOf());
 
-	m_pContext->IASetVertexBuffers(0, 1, _buffer.GetAddressOf(), &objVertStride, &objVertOffset);
-	m_pContext->IASetIndexBuffer(m_pobjIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, objIndOffset);
-	m_pContext->DrawIndexed((UINT)objInds.size(), 0, 0);
+	m_pContext->IASetVertexBuffers(0, 1, _vBuffer.GetAddressOf(), &objVertStride, &objVertOffset);
+	m_pContext->IASetIndexBuffer(_iBuffer.Get(), DXGI_FORMAT_R32_UINT, objIndOffset);
+	m_pContext->DrawIndexed((UINT)_inds.size(), 0, 0);
+}
+
+void DirectXecution::AdjZoomAndNearFarCheck(float _angleVal, float _nearFarVal)
+{
+	if (GetAsyncKeyState('Z') & 0x1)
+	{
+		if (angleY > 10.0f)
+			angleY -= _angleVal;
+	}
+
+	if (GetAsyncKeyState('X') & 0x1)
+	{
+		if (angleY < 120.0f)
+			angleY += _angleVal;
+	}
+
+	if (GetAsyncKeyState('C') & 0x1)
+	{
+		if (nearP > 0.1f)
+			nearP -= _nearFarVal;
+	}
+
+	if (GetAsyncKeyState('V') & 0x1)
+	{
+		if (nearP < 50.f)
+			nearP += _nearFarVal;
+	}
+
+	if (GetAsyncKeyState('B') & 0x1)
+	{
+		if (farP > 75.0f)
+			farP -= _nearFarVal;
+	}
+
+	if (GetAsyncKeyState('N') & 0x1)
+	{
+		if (farP < 150.0f)
+			farP += _nearFarVal;
+	}
+
+	if (GetAsyncKeyState('R'))
+	{
+		angleY = 55.0f;
+		nearP = 0.1f;
+		farP = 100.0f;
+	}
 }
 
 void DirectXecution::DX11Setup(HWND _window)

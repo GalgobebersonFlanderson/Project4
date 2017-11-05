@@ -6,12 +6,13 @@ private:
 	//Generic Variables
 	UsefulStuff											utility;
 	UINT												cubeInd[36];
-	std::vector<VertexOBJ>								objVerts;
-	std::vector<unsigned int>							objInds;
+	std::vector<VertexOBJ>								pattyVerts;
+	std::vector<unsigned int>							pattyInds;
+	float												angleY, nearP, farP, width, height;
 
 	//Matricies
 	XMMATRIX											cubeMat = XMMatrixIdentity();
-	XMMATRIX											bearMat = XMMatrixIdentity();
+	XMMATRIX											pattyMat = XMMatrixIdentity();
 
 	//Struct defines
 	Vertex												platformVerts[6];
@@ -23,8 +24,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Device>				m_pDevice = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext>			m_pContext = nullptr;
 	Microsoft::WRL::ComPtr<IDXGISwapChain>				m_pSwapChain = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout>			m_pcubeInputLayout = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout>			m_pobjInputLayout = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout>			m_pCubeInputLayout = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout>			m_pObjInputLayout = nullptr;
 	D3D_DRIVER_TYPE										m_DriverType;
 	D3D_FEATURE_LEVEL									m_FeatureLevel;
 	D3D11_VIEWPORT										m_ViewPort;
@@ -32,27 +33,27 @@ private:
 
 	//DirectX buffers
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pCubeVertexBuffer = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pobjVertexBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pPattyVertexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pCubeIndexBuffer = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pobjIndexBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pPattyIndexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pConstBuffer = nullptr;
 
 	//DirectX shaders
-	Microsoft::WRL::ComPtr<ID3D11VertexShader>			m_pcubeVertShader = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11VertexShader>			m_pobjVertShader = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader>			m_pCubeVertShader = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader>			m_pObjVertShader = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader>			m_pPixelShader = nullptr;
 
 	//Views
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_pRtv = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pcubeSrv = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pbearSrv = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pCubeSrv = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pPattySrv = nullptr;
 
 	//Resources
 	Microsoft::WRL::ComPtr<ID3D11Resource>				m_pResource = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pBackBufferTexture = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pDepthStencil = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pBrickTexture = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pBearTexture = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pPattyTexture = nullptr;
 
 	//Depth stencil
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState>		m_pDepthStencilState = nullptr;
@@ -74,6 +75,7 @@ public:
 	HRESULT CreateCubeLayout();
 	HRESULT CreateOBJLayout();
 	void DrawCube();
-	void DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_buffer, std::vector<VertexOBJ> _verts);
+	void DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &_iBuffer, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> &_srv, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds);
+	void AdjZoomAndNearFarCheck(float _angleVal, float _nearFarVal);
 };
 
