@@ -81,9 +81,6 @@
     <Image Include="Project4.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="bricks.dds">
-      <Filter>Resource Files</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">

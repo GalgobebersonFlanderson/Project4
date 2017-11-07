@@ -192,7 +192,6 @@
     <ResourceCompile Include="Project4.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="bricks.dds" />
     <Image Include="Project4.ico" />
     <Image Include="small.ico" />
   </ItemGroup>

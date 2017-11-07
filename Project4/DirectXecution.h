@@ -8,11 +8,14 @@ private:
 	UINT												cubeInd[36];
 	std::vector<VertexOBJ>								pattyVerts;
 	std::vector<unsigned int>							pattyInds;
+	std::vector<VertexOBJ>								floorVerts;
+	std::vector<unsigned int>							floorInds;
 	float												angleY, nearP, farP, width, height;
 
 	//Matricies
 	XMMATRIX											cubeMat = XMMatrixIdentity();
 	XMMATRIX											pattyMat = XMMatrixIdentity();
+	XMMATRIX											floorMat = XMMatrixIdentity();
 
 	//Struct defines
 	Vertex												platformVerts[6];
@@ -34,8 +37,10 @@ private:
 	//DirectX buffers
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pCubeVertexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pPattyVertexBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pFloorVertexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pCubeIndexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pPattyIndexBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pFloorIndexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pConstBuffer = nullptr;
 
 	//DirectX shaders
@@ -75,7 +80,7 @@ public:
 	HRESULT CreateCubeLayout();
 	HRESULT CreateOBJLayout();
 	void DrawCube();
-	void DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &_iBuffer, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> &_srv, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds);
+	void DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &_iBuffer, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> &_srv, XMMATRIX &_mat, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds);
 	void AdjZoomAndNearFarCheck(float _angleVal, float _nearFarVal);
 };
 

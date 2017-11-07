@@ -21,7 +21,7 @@ void DirectXecution::DirectXInit(HWND _window)
 	//Model load
 	bool bResult;
 	bResult = utility.LoadOBJFile("Krabby Patty/krabbypattie01.obj", pattyVerts, pattyInds);
-	//bResult = utility.LoadOBJFile("Monokuma/Monokuma-2.obj", objVerts, objInds);
+	bResult = utility.LoadOBJFile("Floor/floor.obj", floorVerts, floorInds);
 
 	//Cube setup
 	cubeRect.left = -0.5f;
@@ -31,16 +31,17 @@ void DirectXecution::DirectXInit(HWND _window)
 	utility.GenerateCubeVertsAndIndices(cubeVerts, 0.5f, cubeRect, cubeInd);
 
 	//Adjusting matricies
-	cubeMat = utility.Translate(XMFLOAT3(0.0f, 0.0f, 3.0f), cubeMat);
+	cubeMat = utility.Translate(XMFLOAT3(0.0f, 0.5f, 3.0f), cubeMat);
 	pattyMat = utility.Translate(XMFLOAT3(0.0f, -0.5f, 0.0f), pattyMat);
 	pattyMat = utility.Scale(XMFLOAT3(0.2f, 0.2f, 0.2f), pattyMat);
+	floorMat = utility.Translate(XMFLOAT3(0.0f, -0.5f, 0.0f), floorMat);
+	floorMat = utility.Scale(XMFLOAT3(0.7f, 0.7f, 0.7f), floorMat);
 
 	//Initialize directX11
 	DX11Setup(_window);
 
 	//Create texture
 	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"bricks.dds", (ID3D11Resource**)m_pBrickTexture.GetAddressOf(), m_pCubeSrv.GetAddressOf());
-	//result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Monokuma/kuma00_p4.dds", (ID3D11Resource**)m_pBearTexture.GetAddressOf(), m_pbearSrv.GetAddressOf());
 	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Krabby Patty/krabbypattie01.dds", (ID3D11Resource**)m_pPattyTexture.GetAddressOf(), m_pPattySrv.GetAddressOf());
 
 	//Create stencil
@@ -55,6 +56,8 @@ void DirectXecution::DirectXInit(HWND _window)
 	result = CreateIndexBuffer();
 	result = CreateVertexBuffer(pattyVerts, m_pPattyVertexBuffer);
 	result = CreateIndexBuffer(pattyInds, m_pPattyIndexBuffer);
+	result = CreateVertexBuffer(floorVerts, m_pFloorVertexBuffer);
+	result = CreateIndexBuffer(floorInds, m_pFloorIndexBuffer);
 	result = CreateConstBuffer();
 
 
@@ -108,7 +111,8 @@ void DirectXecution::DirectXRun(DirectX::XMFLOAT4X4 &_camera)
 	//Binding buffers
 	m_pContext->VSSetConstantBuffers(0, 1, m_pConstBuffer.GetAddressOf());
 	DrawCube();
-	DrawOBJ(m_pPattyVertexBuffer, m_pPattyIndexBuffer, m_pPattySrv, pattyVerts, pattyInds);
+	DrawOBJ(m_pPattyVertexBuffer, m_pPattyIndexBuffer, m_pPattySrv, pattyMat, pattyVerts, pattyInds);
+	DrawOBJ(m_pFloorVertexBuffer, m_pFloorIndexBuffer, m_pCubeSrv, floorMat, floorVerts, floorInds);
 
 	//Display stuff on screen
 	m_pSwapChain->Present(0, 0);
@@ -417,14 +421,14 @@ void DirectXecution::DrawCube()
 	m_pContext->DrawIndexed(ARRAYSIZE(cubeInd), 0, 0);
 }
 
-void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &_iBuffer, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> &_srv, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds)
+void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &_iBuffer, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> &_srv, XMMATRIX &_mat, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds)
 {
 	UINT objVertStride = sizeof(VertexOBJ);
 	UINT objVertOffset = 0;
 	UINT objIndOffset = 0;
 
 	//Sending matrix
-	DirectX::XMStoreFloat4x4(&vramData.worldMat, pattyMat);
+	DirectX::XMStoreFloat4x4(&vramData.worldMat, _mat);
 	m_pContext->UpdateSubresource(m_pConstBuffer.Get(), 0, NULL, &vramData, 0, 0);
 
 	//Binding topology
@@ -438,7 +442,8 @@ void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Mic
 	m_pContext->PSSetShader(m_pPixelShader.Get(), 0, 0);
 
 	//Binding SRV
-	m_pContext->PSSetShaderResources(0, 1, _srv.GetAddressOf());
+	if (_srv != nullptr)
+		m_pContext->PSSetShaderResources(0, 1, _srv.GetAddressOf());
 
 	m_pContext->IASetVertexBuffers(0, 1, _vBuffer.GetAddressOf(), &objVertStride, &objVertOffset);
 	m_pContext->IASetIndexBuffer(_iBuffer.Get(), DXGI_FORMAT_R32_UINT, objIndOffset);

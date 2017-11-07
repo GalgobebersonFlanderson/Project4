@@ -23,6 +23,7 @@
 #include "VertexShader.csh"
 #include "objVertexShader.csh"
 #include <DirectXColors.h>
+#include "Defines.h"
 
 // Structures
 struct Vertex
@@ -52,6 +53,50 @@ struct RectF
 	float top, left, bottom, right;
 };
 
+struct _Material
+{
+	_Material()
+		: emissive(0.0f, 0.0f, 0.0f, 1.0f)
+		, ambient(0.1f, 0.1f, 0.1f, 1.0f)
+		, diffuse(1.0f, 1.0f, 1.0f, 1.0f)
+		, specular(1.0f, 1.0f, 1.0f, 1.0f)
+		, specularPower(128.0f)
+		, useTexture(false)
+	{}
+
+	DirectX::XMFLOAT4 emissive;
+	DirectX::XMFLOAT4 ambient;
+	DirectX::XMFLOAT4 diffuse;
+	DirectX::XMFLOAT4 specular;
+	float specularPower;
+	bool useTexture;
+	DirectX::XMFLOAT2 padding;
+};
+
+struct MaterialProperties
+{
+	_Material material;
+};
+
+struct Light
+{
+	DirectX::XMFLOAT4 pos;
+	DirectX::XMFLOAT4 dir;
+	DirectX::XMFLOAT4 color;
+	float spotAngle;
+	DirectX::XMFLOAT3 attenuation; //x = constAtt, y = linAtt, z = quadAtt
+	int lightType;
+	bool enabled;
+	int padding[2];
+};
+
+struct LightProperties
+{
+	DirectX::XMFLOAT4 eyePos;
+	DirectX::XMFLOAT4 globalAmbient;
+	Light lights[MAX_LIGHTS];
+};
+
 #include <vector>
 #include <DirectXMath.h>
 #include <dxgiformat.h>
@@ -61,7 +106,6 @@ struct RectF
 #include <wrl/client.h>
 #include "UsefulStuff.h"
 #include "XTime.h"
-#include "Defines.h"
 #include "DirectXecution.h"
 #include "DDSTextureLoader.h"
 #include "Project4.h"
