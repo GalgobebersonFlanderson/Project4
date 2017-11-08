@@ -11,6 +11,9 @@ DirectXecution::~DirectXecution()
 
 void DirectXecution::DirectXInit(HWND _window)
 {
+	//Camera setup
+	CameraSetup({ 0.0f, 0.0f, -4.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 0.0f });
+
 	//Camera var setup
 	angleY = 55.0f;
 	nearP = 0.1f;
@@ -31,11 +34,11 @@ void DirectXecution::DirectXInit(HWND _window)
 	utility.GenerateCubeVertsAndIndices(cubeVerts, 0.5f, cubeRect, cubeInd);
 
 	//Adjusting matricies
-	cubeMat = utility.Translate(XMFLOAT3(0.0f, 0.5f, 3.0f), cubeMat);
-	pattyMat = utility.Translate(XMFLOAT3(0.0f, -0.5f, 0.0f), pattyMat);
-	pattyMat = utility.Scale(XMFLOAT3(0.2f, 0.2f, 0.2f), pattyMat);
-	floorMat = utility.Translate(XMFLOAT3(0.0f, -0.5f, 0.0f), floorMat);
-	floorMat = utility.Scale(XMFLOAT3(0.7f, 0.7f, 0.7f), floorMat);
+	cubeMat = utility.Translate(XMFLOAT3(0.0f, 0.5f, 3.0f), 0, cubeMat);
+	pattyMat = utility.Translate(XMFLOAT3(0.0f, -0.5f, 0.0f), 0, pattyMat);
+	pattyMat = utility.Scale(XMFLOAT3(0.2f, 0.2f, 0.2f), 0, pattyMat);
+	floorMat = utility.Translate(XMFLOAT3(0.0f, -0.5f, 0.0f), 0, floorMat);
+	floorMat = utility.Scale(XMFLOAT3(0.7f, 0.7f, 0.7f), 0, floorMat);
 
 	//Initialize directX11
 	DX11Setup(_window);
@@ -58,7 +61,9 @@ void DirectXecution::DirectXInit(HWND _window)
 	result = CreateIndexBuffer(pattyInds, m_pPattyIndexBuffer);
 	result = CreateVertexBuffer(floorVerts, m_pFloorVertexBuffer);
 	result = CreateIndexBuffer(floorInds, m_pFloorIndexBuffer);
-	result = CreateConstBuffer();
+	result = CreateConstBuffer(MatrixBuffer, m_pConstMatrixBuffer);
+	result = CreateConstBuffer(MaterialBuffer, m_pConstMaterialBuffer);
+	result = CreateConstBuffer(LightBuffer, m_pConstLightBuffer);
 
 
 	//Create shaders
@@ -78,19 +83,47 @@ void DirectXecution::DirectXInit(HWND _window)
 	m_ViewPort.TopLeftY = 0;
 	m_ViewPort.MinDepth = 0.0f;
 	m_ViewPort.MaxDepth = 1.0f;
+
+	pLight = XMFLOAT3(0.0f, 1.5f, 0.0f);
+	sLight = XMFLOAT3(0.0f, 2.2f, 0.0f);
+	dLight = XMFLOAT3(0.0f, 2.8f, 0.0f);
 }
 
-void DirectXecution::DirectXRun(DirectX::XMFLOAT4X4 &_camera)
+void DirectXecution::DirectXRun()
 {
+	timer.Signal();
+
+
+	//if (sLight.x < 5.0f)
+	//	sLight.x += (float)timer.Delta();
+	//else if (sLight.x > -5.0f)
+	//	sLight.x -= (float)timer.Delta();
+
+	if (GetAsyncKeyState('1') && !lightProperties.lights[0].enabled)
+		LightSetup(pLight, DirectX::Colors::Green, PointLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 45.0f, 0);
+	else if (GetAsyncKeyState('1') && lightProperties.lights[0].enabled)
+		lightProperties.lights[0].enabled = false;
+	if (GetAsyncKeyState('2') && !lightProperties.lights[1].enabled)
+		LightSetup(sLight, DirectX::Colors::Red, SpotLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 45.0f, 1);
+	else if (GetAsyncKeyState('2') && lightProperties.lights[1].enabled)
+		lightProperties.lights[1].enabled = false;
+	if (GetAsyncKeyState('3') && !lightProperties.lights[2].enabled)
+		LightSetup(dLight, DirectX::Colors::Blue, DirectionalLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 45.0f, 2);
+	else if (GetAsyncKeyState('3') && lightProperties.lights[2].enabled)
+		lightProperties.lights[2].enabled = false;
+
+	//Camera update
+	utility.UpdateCamera(camera, (float)timer.Delta(), 5.0f, 5.0f);
+
 	//Rotating stuff
-	cubeMat = utility.Rotate(XMFLOAT3(0.0003f, 0.001f, 0.0007f), cubeMat);
-	pattyMat = utility.Rotate(XMFLOAT3(0.0f, 0.001f, 0.0f), pattyMat);
+	cubeMat = utility.Rotate(XMFLOAT3(1.0f, 1.0f, 1.0f), (float)timer.Delta(), cubeMat);
+	pattyMat = utility.Rotate(XMFLOAT3(0.0f, 1.0f, 0.0f), (float)timer.Delta(), pattyMat);
 
 	//Changing angleY and Near and Far
 	AdjZoomAndNearFarCheck(1.0f, 1.0f);
 
 	//Setting const buffer view and proj matrix
-	DirectX::XMStoreFloat4x4(&vramData.viewMat, DirectX::XMMatrixTranspose(XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&_camera))));
+	DirectX::XMStoreFloat4x4(&vramData.viewMat, DirectX::XMMatrixTranspose(XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&camera))));
 	DirectX::XMStoreFloat4x4(&vramData.projMat, DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(angleY), width / height, nearP, farP)));
 
 	//Binding depth stencil
@@ -109,7 +142,16 @@ void DirectXecution::DirectXRun(DirectX::XMFLOAT4X4 &_camera)
 	m_pContext->RSSetViewports(1, &m_ViewPort);
 
 	//Binding buffers
-	m_pContext->VSSetConstantBuffers(0, 1, m_pConstBuffer.GetAddressOf());
+	ID3D11Buffer* buffers[] = { m_pConstMaterialBuffer.Get(), m_pConstLightBuffer.Get() };
+	m_pContext->VSSetConstantBuffers(0, 1, m_pConstMatrixBuffer.GetAddressOf());
+	m_pContext->PSSetConstantBuffers(0, ARRAYSIZE(buffers), buffers);
+
+	//Sending light info
+	XMVECTOR cameraPos = { camera._41, camera._42, camera._43, camera._44 };
+	XMStoreFloat4(&lightProperties.eyePos, cameraPos);
+	m_pContext->UpdateSubresource(m_pConstLightBuffer.Get(), 0, nullptr, &lightProperties, 0, 0);
+
+	//Draw calls
 	DrawCube();
 	DrawOBJ(m_pPattyVertexBuffer, m_pPattyIndexBuffer, m_pPattySrv, pattyMat, pattyVerts, pattyInds);
 	DrawOBJ(m_pFloorVertexBuffer, m_pFloorIndexBuffer, m_pCubeSrv, floorMat, floorVerts, floorInds);
@@ -281,13 +323,12 @@ HRESULT DirectXecution::CreateIndexBuffer()
 	return result;
 }
 
-HRESULT DirectXecution::CreateConstBuffer()
+HRESULT DirectXecution::CreateConstBuffer(unsigned int _constBufferNum, Microsoft::WRL::ComPtr<ID3D11Buffer> &_cBuffer)
 {
 	//Const buffer description
 	D3D11_BUFFER_DESC constBufferDesc;
 	ZeroMemory(&constBufferDesc, sizeof(constBufferDesc));
 	constBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	constBufferDesc.ByteWidth = sizeof(Send_To_VRAM);
 	constBufferDesc.CPUAccessFlags = NULL;
 	constBufferDesc.MiscFlags = NULL;
 	constBufferDesc.StructureByteStride = NULL;
@@ -296,12 +337,34 @@ HRESULT DirectXecution::CreateConstBuffer()
 	//Const buffer initial data
 	D3D11_SUBRESOURCE_DATA constBufferInitData;
 	ZeroMemory(&constBufferInitData, sizeof(constBufferInitData));
-	constBufferInitData.pSysMem = &vramData;
 	constBufferInitData.SysMemPitch = NULL;
 	constBufferInitData.SysMemSlicePitch = NULL;
 
-	result = m_pDevice->CreateBuffer(&constBufferDesc, &constBufferInitData, m_pConstBuffer.GetAddressOf());
 
+	switch (_constBufferNum)
+	{
+		case MatrixBuffer:
+		{
+			constBufferDesc.ByteWidth = sizeof(Send_To_VRAM);
+			constBufferInitData.pSysMem = &vramData;
+		}
+		break;
+
+		case MaterialBuffer:
+		{
+			constBufferDesc.ByteWidth = sizeof(MaterialProperties);
+			constBufferInitData.pSysMem = &materialProperties;
+		}
+		break;
+
+		case LightBuffer:
+		{
+			constBufferDesc.ByteWidth = sizeof(LightProperties);
+			constBufferInitData.pSysMem = &lightProperties;
+		}
+	}
+
+	result = m_pDevice->CreateBuffer(&constBufferDesc, &constBufferInitData, _cBuffer.GetAddressOf());
 	return result;
 }
 
@@ -401,7 +464,12 @@ void DirectXecution::DrawCube()
 
 	//Send matrix
 	DirectX::XMStoreFloat4x4(&vramData.worldMat, cubeMat);
-	m_pContext->UpdateSubresource(m_pConstBuffer.Get(), 0, NULL, &vramData, 0, 0);
+	m_pContext->UpdateSubresource(m_pConstMatrixBuffer.Get(), 0, NULL, &vramData, 0, 0);
+
+	//Send material
+	MaterialProperties cubeMaterial;
+	cubeMaterial.material.useTexture = true;
+	m_pContext->UpdateSubresource(m_pConstMaterialBuffer.Get(), 0, nullptr, &cubeMaterial, 0, 0);
 
 	//Binding topology
 	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -429,7 +497,12 @@ void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Mic
 
 	//Sending matrix
 	DirectX::XMStoreFloat4x4(&vramData.worldMat, _mat);
-	m_pContext->UpdateSubresource(m_pConstBuffer.Get(), 0, NULL, &vramData, 0, 0);
+	m_pContext->UpdateSubresource(m_pConstMatrixBuffer.Get(), 0, NULL, &vramData, 0, 0);
+
+	//Send material
+	MaterialProperties objMaterial;
+	objMaterial.material.useTexture = true;
+	m_pContext->UpdateSubresource(m_pConstMaterialBuffer.Get(), 0, nullptr, &objMaterial, 0, 0);
 
 	//Binding topology
 	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -494,6 +567,27 @@ void DirectXecution::AdjZoomAndNearFarCheck(float _angleVal, float _nearFarVal)
 		nearP = 0.1f;
 		farP = 100.0f;
 	}
+}
+
+void DirectXecution::LightSetup(XMFLOAT3 _pos, XMVECTORF32 _color, unsigned int _type, XMFLOAT3 _CLQAttenuation, float _spotAngle, unsigned int _slot)
+{
+	Light light;
+	light.enabled = true;
+	light.lightType = _type;
+	light.color = XMFLOAT4(_color);
+	light.spotAngle = XMConvertToRadians(_spotAngle);
+	light.attenuation = { _CLQAttenuation.x, _CLQAttenuation.y, _CLQAttenuation.z };
+	XMFLOAT4 LightPos = XMFLOAT4(_pos.x, _pos.y, _pos.z, 1.0f);
+	light.pos = LightPos;
+	XMVECTOR LightDir = XMVectorSet(-LightPos.x, -LightPos.y, -LightPos.z, 0.0f);
+	XMStoreFloat4(&light.dir, LightDir);
+
+	lightProperties.lights[_slot] = light;
+}
+
+void DirectXecution::CameraSetup(XMVECTOR _eyePos, XMVECTOR _focusPos, XMVECTOR _upDir)
+{
+	XMStoreFloat4x4(&camera, XMMatrixInverse(nullptr, XMMatrixLookAtLH(_eyePos, _focusPos, _upDir)));
 }
 
 void DirectXecution::DX11Setup(HWND _window)

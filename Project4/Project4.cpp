@@ -12,8 +12,6 @@ using namespace DirectX;
 //Variables
 DirectXecution*										directx = nullptr;
 UsefulStuff											utility;
-XMFLOAT4X4											camera;
-XTime												timer;
 HWND												window;
 
 // Global variables:
@@ -47,13 +45,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
-	//Set camera to LookAtLH
-	XMVECTOR EyePos = { 0.0f, 0.0f, -4.0f, 0.0f };
-	XMVECTOR FocusPos = { 0.0f, 0.0f, 0.0f, 0.0f };
-	XMVECTOR UpDirection = { 0.0f, 1.0f, 0.0f, 0.0f };
-
-	XMStoreFloat4x4(&camera, XMMatrixInverse(nullptr, XMMatrixLookAtLH(EyePos, FocusPos, UpDirection)));
-
 	//DirectX Init
 	directx = new DirectXecution();
 	directx->DirectXInit(window);
@@ -65,8 +56,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Main message loop:
     while (msg.message != WM_QUIT)
     {
-		timer.Signal();
-
 		// Window stuff
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
@@ -75,10 +64,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
 
 		//DirectX Run
-		directx->DirectXRun(camera);
-
-		//Camera
-		utility.UpdateCamera(camera, (float)timer.Delta(), 5.0f, 5.0f);
+		directx->DirectXRun();
     }
 
 	delete directx;

@@ -5,12 +5,15 @@ class DirectXecution
 private:
 	//Generic Variables
 	UsefulStuff											utility;
+	XMFLOAT4X4											camera;
+	XTime												timer;
 	UINT												cubeInd[36];
 	std::vector<VertexOBJ>								pattyVerts;
 	std::vector<unsigned int>							pattyInds;
 	std::vector<VertexOBJ>								floorVerts;
 	std::vector<unsigned int>							floorInds;
 	float												angleY, nearP, farP, width, height;
+	XMFLOAT3											sLight, pLight, dLight;
 
 	//Matricies
 	XMMATRIX											cubeMat = XMMatrixIdentity();
@@ -20,6 +23,8 @@ private:
 	//Struct defines
 	Vertex												platformVerts[6];
 	Vertex												cubeVerts[24];
+	LightProperties										lightProperties;
+	MaterialProperties									materialProperties;
 	RectF												cubeRect;
 	Send_To_VRAM										vramData;
 
@@ -41,7 +46,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pCubeIndexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pPattyIndexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pFloorIndexBuffer = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pConstBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pConstMatrixBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pConstMaterialBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pConstLightBuffer = nullptr;
 
 	//DirectX shaders
 	Microsoft::WRL::ComPtr<ID3D11VertexShader>			m_pCubeVertShader = nullptr;
@@ -68,19 +75,21 @@ public:
 	DirectXecution();
 	~DirectXecution();
 	void DirectXInit(HWND _window);
-	void DirectXRun(DirectX::XMFLOAT4X4 &_camera);
+	void DirectXRun();
 	void ResizeUpdate(HWND _window);
 	void DX11Setup(HWND _window);
+	void DrawCube();
+	void DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &_iBuffer, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> &_srv, XMMATRIX &_mat, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds);
+	void AdjZoomAndNearFarCheck(float _angleVal, float _nearFarVal);
+	void LightSetup(XMFLOAT3 _pos, XMVECTORF32 _color, unsigned int _type, XMFLOAT3 _CLQAttenuation, float _spotAngle, unsigned int _slot);
+	void CameraSetup(XMVECTOR _eyePos, XMVECTOR _focusPos, XMVECTOR _upDir);
 	HRESULT CreateVertexBuffer();
 	HRESULT CreateVertexBuffer(std::vector<VertexOBJ> &_vertVect, Microsoft::WRL::ComPtr<ID3D11Buffer> &_buffer);
 	HRESULT CreateIndexBuffer(std::vector<unsigned int> _indVect, Microsoft::WRL::ComPtr<ID3D11Buffer> &_buffer);
 	HRESULT CreateIndexBuffer();
-	HRESULT CreateConstBuffer();
+	HRESULT CreateConstBuffer(unsigned int _constBufferNum, Microsoft::WRL::ComPtr<ID3D11Buffer> &_cBuffer);
 	HRESULT CreateDepthStencil();
 	HRESULT CreateCubeLayout();
 	HRESULT CreateOBJLayout();
-	void DrawCube();
-	void DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &_iBuffer, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> &_srv, XMMATRIX &_mat, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds);
-	void AdjZoomAndNearFarCheck(float _angleVal, float _nearFarVal);
 };
 

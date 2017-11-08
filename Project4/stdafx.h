@@ -25,6 +25,10 @@
 #include <DirectXColors.h>
 #include "Defines.h"
 
+//Enums
+enum LightType { DirectionalLight, PointLight, SpotLight };
+enum ConstBufferStruct { MatrixBuffer, MaterialBuffer, LightBuffer };
+
 // Structures
 struct Vertex
 {
@@ -80,6 +84,16 @@ struct MaterialProperties
 
 struct Light
 {
+	Light()
+		: pos(0.0f, 0.0f, 0.0f, 1.0f)
+		, dir(0.0f, 0.0f, 1.0f, 0.0f)
+		, color(1.0f, 1.0f, 1.0f, 1.0f)
+		, spotAngle(45.0f)
+		, attenuation(1.0f, 0.0f, 0.0f)
+		, lightType(DirectionalLight)
+		, enabled(0)
+	{}
+
 	DirectX::XMFLOAT4 pos;
 	DirectX::XMFLOAT4 dir;
 	DirectX::XMFLOAT4 color;
@@ -92,9 +106,14 @@ struct Light
 
 struct LightProperties
 {
+	LightProperties()
+		: eyePos(0.0f, 0.0f, 0.0f, 1.0f)
+		, globalAmbient(0.2f, 0.2f, 0.8f, 1.0f)
+	{}
+
 	DirectX::XMFLOAT4 eyePos;
 	DirectX::XMFLOAT4 globalAmbient;
-	Light lights[MAX_LIGHTS];
+	Light lights[3];
 };
 
 #include <vector>

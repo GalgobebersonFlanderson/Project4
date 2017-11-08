@@ -1,4 +1,3 @@
-#define MAX_LIGHTS 8
 #define DIRECTIONAL_LIGHT 0
 #define POINT_LIGHT 1
 #define SPOT_LIGHT 2
@@ -38,7 +37,7 @@ cbuffer LightProperties : register(b1)
 {
     float4 eyePos;
     float4 globalAmbient;
-    Light lights[MAX_LIGHTS];
+    Light lights[3];
 };
 
 struct LightResult
@@ -127,7 +126,7 @@ LightResult ComputeLighting(float4 pointShade, float3 surfaceNorm)
     LightResult totalResult = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 } };
  
     [unroll]
-    for (int i = 0; i < MAX_LIGHTS; ++i)
+    for (int i = 0; i < 3; ++i)
     {
         LightResult result = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 } };
  
@@ -167,28 +166,29 @@ LightResult ComputeLighting(float4 pointShade, float3 surfaceNorm)
 
 struct INPUT_PIXEL
 {
-	float4 pos : POSITION;
+	float4 posWS : POSITIONWS;
+    float4 position : SV_POSITION;
 	float4 color : COLOR;
 	float3 normals : NORMALS;
 	float2 uv : UV;
 };
 
-/*
+
 float4 main(INPUT_PIXEL input) : SV_TARGET
 {
-    LightResult lit = ComputeLighting(input.pos, normalize(input.normals));
+    LightResult light = ComputeLighting(input.posWS, normalize(input.normals));
      
     float4 emissive = material.emissive;
     float4 ambient = material.ambient * globalAmbient;
-    float4 diffuse = material.diffuse * lit.diffuse;
-    float4 specular = material.specular * lit.specular;
+    float4 diffuse = material.diffuse * light.diffuse;
+    float4 specular = material.specular * light.specular;
  
     float4 texColor = { 1, 1, 1, 1 };
      
     if (material.useTexture)
     {
         texColor = tex.Sample(texSample, input.uv);
-        if(texColor.a < 0.5f)
+        if (texColor.a < 0.5f)
             discard;
     }
  
@@ -196,14 +196,14 @@ float4 main(INPUT_PIXEL input) : SV_TARGET
 
     return finalColor;
 }
-*/
 
-float4 main(INPUT_PIXEL input) : SV_TARGET
-{
-    float4 texColor = tex.Sample(texSample, input.uv);
 
-    if(texColor.a < 0.5f)
-        discard;
+//float4 main(INPUT_PIXEL input) : SV_TARGET
+//{
+//    float4 texColor = tex.Sample(texSample, input.uv);
 
-    return texColor;
-}
+//    if (texColor.a < 0.5f)
+//        discard;
+
+//    return texColor;
+//}

@@ -211,23 +211,42 @@ void UsefulStuff::UpdateCamera(XMFLOAT4X4 &_camera, float const &_timer, const f
 	XMStoreFloat4x4(&_camera, XMLoadFloat4x4(&temp_cam));
 }
 
-XMMATRIX UsefulStuff::Translate(XMFLOAT3 _xyz, XMMATRIX _mat)
+XMMATRIX UsefulStuff::Translate(XMFLOAT3 _xyz, float _delta, XMMATRIX _mat)
 {
-	_mat *= XMMatrixTranspose(XMMatrixTranslation(_xyz.x, _xyz.y, _xyz.z));
+	if (_delta != 0)
+		_mat *= XMMatrixTranspose(XMMatrixTranslation(_xyz.x * _delta, _xyz.y * _delta, _xyz.z * _delta));
+	else
+		_mat *= XMMatrixTranspose(XMMatrixTranslation(_xyz.x, _xyz.y, _xyz.z));
+
 	return _mat;
 }
 
-XMMATRIX UsefulStuff::Scale(XMFLOAT3 _xyz, XMMATRIX _mat)
+XMMATRIX UsefulStuff::Scale(XMFLOAT3 _xyz, float _delta, XMMATRIX _mat)
 {
-	_mat *= XMMatrixScaling(_xyz.x, _xyz.y, _xyz.z);
+	if (_delta != 0)
+		_mat *= XMMatrixScaling(_xyz.x * _delta, _xyz.y * _delta, _xyz.z * _delta);
+	else
+		_mat *= XMMatrixScaling(_xyz.x, _xyz.y, _xyz.z);
+
 	return _mat;
 }
 
-XMMATRIX UsefulStuff::Rotate(XMFLOAT3 _xyz, XMMATRIX _mat)
+XMMATRIX UsefulStuff::Rotate(XMFLOAT3 _xyz, float _delta, XMMATRIX _mat)
 {
-	_mat *= XMMatrixRotationX(_xyz.x);
-	_mat *= XMMatrixRotationY(_xyz.y);
-	_mat *= XMMatrixRotationZ(_xyz.z);
+	if (_delta != 0)
+	{
+		_mat *= XMMatrixRotationX(_xyz.x * _delta);
+		_mat *= XMMatrixRotationY(_xyz.y * _delta);
+		_mat *= XMMatrixRotationZ(_xyz.z * _delta);
+	}
+
+	else
+	{
+		_mat *= XMMatrixRotationX(_xyz.x);
+		_mat *= XMMatrixRotationY(_xyz.y);
+		_mat *= XMMatrixRotationZ(_xyz.z);
+	}
+
 	return _mat;
 }
 
