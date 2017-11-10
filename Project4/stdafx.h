@@ -64,7 +64,7 @@ struct _Material
 		, ambient(0.1f, 0.1f, 0.1f, 1.0f)
 		, diffuse(1.0f, 1.0f, 1.0f, 1.0f)
 		, specular(1.0f, 1.0f, 1.0f, 1.0f)
-		, specularPower(128.0f)
+		, specularPower(125.0f)
 		, useTexture(false)
 	{}
 

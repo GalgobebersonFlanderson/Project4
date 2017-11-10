@@ -25,6 +25,7 @@ void DirectXecution::DirectXInit(HWND _window)
 	bool bResult;
 	bResult = utility.LoadOBJFile("Krabby Patty/krabbypattie01.obj", pattyVerts, pattyInds);
 	bResult = utility.LoadOBJFile("Floor/floor.obj", floorVerts, floorInds);
+	bResult = utility.LoadOBJFile("Teapot/teapot.obj", teapotVerts, teapotInds);
 
 	//Cube setup
 	cubeRect.left = -0.5f;
@@ -36,9 +37,11 @@ void DirectXecution::DirectXInit(HWND _window)
 	//Adjusting matricies
 	cubeMat = utility.Translate(XMFLOAT3(0.0f, 0.5f, 3.0f), 0, cubeMat);
 	pattyMat = utility.Translate(XMFLOAT3(0.0f, -0.5f, 0.0f), 0, pattyMat);
-	pattyMat = utility.Scale(XMFLOAT3(0.2f, 0.2f, 0.2f), 0, pattyMat);
+	teapotMat = utility.Translate(XMFLOAT3(0.0f, -0.5f, -3.0f), 0, teapotMat);
 	floorMat = utility.Translate(XMFLOAT3(0.0f, -0.5f, 0.0f), 0, floorMat);
+	pattyMat = utility.Scale(XMFLOAT3(0.2f, 0.2f, 0.2f), 0, pattyMat);
 	floorMat = utility.Scale(XMFLOAT3(0.7f, 0.7f, 0.7f), 0, floorMat);
+	teapotMat = utility.Scale(XMFLOAT3(0.04f, 0.04f, 0.04f), 0, teapotMat);
 
 	//Initialize directX11
 	DX11Setup(_window);
@@ -46,6 +49,7 @@ void DirectXecution::DirectXInit(HWND _window)
 	//Create texture
 	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"bricks.dds", (ID3D11Resource**)m_pBrickTexture.GetAddressOf(), m_pCubeSrv.GetAddressOf());
 	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Krabby Patty/krabbypattie01.dds", (ID3D11Resource**)m_pPattyTexture.GetAddressOf(), m_pPattySrv.GetAddressOf());
+	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Teapot/teapotmat.dds", (ID3D11Resource**)m_pPattyTexture.GetAddressOf(), m_pTeapotSrv.GetAddressOf());
 
 	//Create stencil
 	result = CreateDepthStencil();
@@ -61,10 +65,11 @@ void DirectXecution::DirectXInit(HWND _window)
 	result = CreateIndexBuffer(pattyInds, m_pPattyIndexBuffer);
 	result = CreateVertexBuffer(floorVerts, m_pFloorVertexBuffer);
 	result = CreateIndexBuffer(floorInds, m_pFloorIndexBuffer);
+	result = CreateVertexBuffer(teapotVerts, m_pTeapotVertexBuffer);
+	result = CreateIndexBuffer(teapotInds, m_pTeapotIndexBuffer);
 	result = CreateConstBuffer(MatrixBuffer, m_pConstMatrixBuffer);
 	result = CreateConstBuffer(MaterialBuffer, m_pConstMaterialBuffer);
 	result = CreateConstBuffer(LightBuffer, m_pConstLightBuffer);
-
 
 	//Create shaders
 	result = m_pDevice->CreateVertexShader(VertexShader, sizeof(VertexShader), NULL, m_pCubeVertShader.GetAddressOf());
@@ -73,7 +78,7 @@ void DirectXecution::DirectXInit(HWND _window)
 
 	//Create RTV
 	result = m_pSwapChain->GetBuffer(NULL, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(m_pBackBufferTexture.GetAddressOf()));
-	CD3D11_RENDER_TARGET_VIEW_DESC RTVDesc(D3D11_RTV_DIMENSION_TEXTURE2D);
+	CD3D11_RENDER_TARGET_VIEW_DESC RTVDesc(D3D11_RTV_DIMENSION_TEXTURE2DMS);
 	result = m_pDevice->CreateRenderTargetView(m_pBackBufferTexture.Get(), &RTVDesc, m_pRtv.GetAddressOf());
 
 	//Create viewport
@@ -84,33 +89,74 @@ void DirectXecution::DirectXInit(HWND _window)
 	m_ViewPort.MinDepth = 0.0f;
 	m_ViewPort.MaxDepth = 1.0f;
 
+	//Set materials
+	cubeMaterial.material.useTexture = true;
+	floorMaterial.material.useTexture = true;
+	floorMaterial.material.specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	pattyMaterial.material.useTexture = true;
+	pattyMaterial.material.specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	teapotMaterial.material.useTexture = true;
+	teapotMaterial.material.specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	//Set light and button stuff
 	pLight = XMFLOAT3(0.0f, 1.5f, 0.0f);
-	sLight = XMFLOAT3(0.0f, 2.2f, 0.0f);
+	sLight = XMFLOAT3(0.0f, 1.5f, 0.0f);
 	dLight = XMFLOAT3(0.0f, 2.8f, 0.0f);
+	buttonLength = 0.25f;
+
+	buttonTimer += buttonLength;
 }
 
 void DirectXecution::DirectXRun()
 {
 	timer.Signal();
 
+	//Material changes
+	if (emissiveVal >= 1.3f)
+		increaseEmissiveVal = false;
+	else if (emissiveVal <= 0.0f)
+		increaseEmissiveVal = true;
 
-	//if (sLight.x < 5.0f)
-	//	sLight.x += (float)timer.Delta();
-	//else if (sLight.x > -5.0f)
-	//	sLight.x -= (float)timer.Delta();
+	if (increaseEmissiveVal)
+		emissiveVal += 0.001f;
+	else
+		emissiveVal -= 0.001f;
 
-	if (GetAsyncKeyState('1') && !lightProperties.lights[0].enabled)
-		LightSetup(pLight, DirectX::Colors::Green, PointLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 45.0f, 0);
-	else if (GetAsyncKeyState('1') && lightProperties.lights[0].enabled)
+	teapotMaterial.material.emissive = XMFLOAT4(emissiveVal, emissiveVal, emissiveVal, 1.0f);
+
+	//Light toggle stuff
+	buttonTimer += (float)timer.Delta();
+
+	if (GetAsyncKeyState('1') && !lightProperties.lights[0].enabled && buttonTimer > buttonLength)
+	{
+		LightSetup(pLight, Colors::Green, PointLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 25.0f, 0);
+		buttonTimer = 0.0f;
+	}
+	else if (GetAsyncKeyState('1') && lightProperties.lights[0].enabled && buttonTimer > buttonLength)
+	{
 		lightProperties.lights[0].enabled = false;
-	if (GetAsyncKeyState('2') && !lightProperties.lights[1].enabled)
-		LightSetup(sLight, DirectX::Colors::Red, SpotLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 45.0f, 1);
-	else if (GetAsyncKeyState('2') && lightProperties.lights[1].enabled)
+		buttonTimer = 0.0f;
+	}
+	if (GetAsyncKeyState('2') && !lightProperties.lights[1].enabled && buttonTimer > buttonLength)
+	{
+		LightSetup(sLight, Colors::Red, SpotLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 25.0f, 1);
+		buttonTimer = 0.0f;
+	}
+	else if (GetAsyncKeyState('2') && lightProperties.lights[1].enabled && buttonTimer > buttonLength)
+	{
 		lightProperties.lights[1].enabled = false;
-	if (GetAsyncKeyState('3') && !lightProperties.lights[2].enabled)
-		LightSetup(dLight, DirectX::Colors::Blue, DirectionalLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 45.0f, 2);
-	else if (GetAsyncKeyState('3') && lightProperties.lights[2].enabled)
+		buttonTimer = 0.0f;
+	}
+	if (GetAsyncKeyState('3') && !lightProperties.lights[2].enabled && buttonTimer > buttonLength)
+	{
+		LightSetup(dLight, Colors::Blue, DirectionalLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 0, 2);
+		buttonTimer = 0.0f;
+	}
+	else if (GetAsyncKeyState('3') && lightProperties.lights[2].enabled && buttonTimer > buttonLength)
+	{
 		lightProperties.lights[2].enabled = false;
+		buttonTimer = 0.0f;
+	}
 
 	//Camera update
 	utility.UpdateCamera(camera, (float)timer.Delta(), 5.0f, 5.0f);
@@ -152,9 +198,10 @@ void DirectXecution::DirectXRun()
 	m_pContext->UpdateSubresource(m_pConstLightBuffer.Get(), 0, nullptr, &lightProperties, 0, 0);
 
 	//Draw calls
-	DrawCube();
-	DrawOBJ(m_pPattyVertexBuffer, m_pPattyIndexBuffer, m_pPattySrv, pattyMat, pattyVerts, pattyInds);
-	DrawOBJ(m_pFloorVertexBuffer, m_pFloorIndexBuffer, m_pCubeSrv, floorMat, floorVerts, floorInds);
+	DrawCube(cubeMaterial);
+	DrawOBJ(m_pPattyVertexBuffer, m_pPattyIndexBuffer, m_pPattySrv, pattyMat, pattyVerts, pattyInds, pattyMaterial);
+	DrawOBJ(m_pFloorVertexBuffer, m_pFloorIndexBuffer, m_pCubeSrv, floorMat, floorVerts, floorInds, floorMaterial);
+	DrawOBJ(m_pTeapotVertexBuffer, m_pTeapotIndexBuffer, m_pTeapotSrv, teapotMat, teapotVerts, teapotInds, teapotMaterial);
 
 	//Display stuff on screen
 	m_pSwapChain->Present(0, 0);
@@ -198,7 +245,7 @@ void DirectXecution::ResizeUpdate(HWND _window)
 	depthStencilDesc.Width = width;
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.MiscFlags = NULL;
-	depthStencilDesc.SampleDesc.Count = 1;
+	depthStencilDesc.SampleDesc.Count = 4;
 	depthStencilDesc.SampleDesc.Quality = 0;
 	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
 
@@ -209,7 +256,7 @@ void DirectXecution::ResizeUpdate(HWND _window)
 
 	//Create RTV
 	result = m_pSwapChain->GetBuffer(NULL, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(m_pBackBufferTexture.GetAddressOf()));
-	CD3D11_RENDER_TARGET_VIEW_DESC RTVDesc(D3D11_RTV_DIMENSION_TEXTURE2D);
+	CD3D11_RENDER_TARGET_VIEW_DESC RTVDesc(D3D11_RTV_DIMENSION_TEXTURE2DMS);
 	result = m_pDevice->CreateRenderTargetView(m_pBackBufferTexture.Get(), &RTVDesc, m_pRtv.GetAddressOf());
 
 	//Create stencil
@@ -387,7 +434,7 @@ HRESULT DirectXecution::CreateDepthStencil()
 	depthStencilDesc.Width = BufferWidth;
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.MiscFlags = NULL;
-	depthStencilDesc.SampleDesc.Count = 1;
+	depthStencilDesc.SampleDesc.Count = 4;
 	depthStencilDesc.SampleDesc.Quality = 0;
 	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
 
@@ -409,7 +456,7 @@ HRESULT DirectXecution::CreateDepthStencil()
 
 	//View
 	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 
 	result = m_pDevice->CreateTexture2D(&depthStencilDesc, NULL, m_pDepthStencil.GetAddressOf());
@@ -456,7 +503,7 @@ HRESULT DirectXecution::CreateOBJLayout()
 	return result;
 }
 
-void DirectXecution::DrawCube()
+void DirectXecution::DrawCube(MaterialProperties _material)
 {
 	UINT cubeVertStride = sizeof(Vertex);
 	UINT cubeVertOffset = 0;
@@ -467,9 +514,7 @@ void DirectXecution::DrawCube()
 	m_pContext->UpdateSubresource(m_pConstMatrixBuffer.Get(), 0, NULL, &vramData, 0, 0);
 
 	//Send material
-	MaterialProperties cubeMaterial;
-	cubeMaterial.material.useTexture = true;
-	m_pContext->UpdateSubresource(m_pConstMaterialBuffer.Get(), 0, nullptr, &cubeMaterial, 0, 0);
+	m_pContext->UpdateSubresource(m_pConstMaterialBuffer.Get(), 0, nullptr, &_material, 0, 0);
 
 	//Binding topology
 	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -489,7 +534,7 @@ void DirectXecution::DrawCube()
 	m_pContext->DrawIndexed(ARRAYSIZE(cubeInd), 0, 0);
 }
 
-void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &_iBuffer, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> &_srv, XMMATRIX &_mat, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds)
+void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &_iBuffer, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> &_srv, XMMATRIX &_mat, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds, MaterialProperties _material)
 {
 	UINT objVertStride = sizeof(VertexOBJ);
 	UINT objVertOffset = 0;
@@ -500,9 +545,7 @@ void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Mic
 	m_pContext->UpdateSubresource(m_pConstMatrixBuffer.Get(), 0, NULL, &vramData, 0, 0);
 
 	//Send material
-	MaterialProperties objMaterial;
-	objMaterial.material.useTexture = true;
-	m_pContext->UpdateSubresource(m_pConstMaterialBuffer.Get(), 0, nullptr, &objMaterial, 0, 0);
+	m_pContext->UpdateSubresource(m_pConstMaterialBuffer.Get(), 0, nullptr, &_material, 0, 0);
 
 	//Binding topology
 	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -620,10 +663,10 @@ void DirectXecution::DX11Setup(HWND _window)
 	swapDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapDesc.BufferDesc.RefreshRate.Denominator = 1;
 	swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapDesc.SampleDesc.Count = 4;
+	swapDesc.SampleDesc.Quality = 0;
 	swapDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	swapDesc.Windowed = true;
-	swapDesc.SampleDesc.Count = 1;
-	swapDesc.SampleDesc.Quality = 0;
 	swapDesc.Flags = NULL;
 	swapDesc.OutputWindow = _window;
 

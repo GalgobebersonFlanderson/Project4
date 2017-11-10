@@ -12,13 +12,25 @@ private:
 	std::vector<unsigned int>							pattyInds;
 	std::vector<VertexOBJ>								floorVerts;
 	std::vector<unsigned int>							floorInds;
+	std::vector<VertexOBJ>								teapotVerts;
+	std::vector<unsigned int>							teapotInds;
 	float												angleY, nearP, farP, width, height;
+	float												buttonTimer, buttonLength;
+	float												emissiveVal;
+	bool												increaseEmissiveVal = true;
 	XMFLOAT3											sLight, pLight, dLight;
 
 	//Matricies
 	XMMATRIX											cubeMat = XMMatrixIdentity();
 	XMMATRIX											pattyMat = XMMatrixIdentity();
 	XMMATRIX											floorMat = XMMatrixIdentity();
+	XMMATRIX											teapotMat = XMMatrixIdentity();
+
+	//Materials
+	MaterialProperties									cubeMaterial;
+	MaterialProperties									pattyMaterial;
+	MaterialProperties									teapotMaterial;
+	MaterialProperties									floorMaterial;
 
 	//Struct defines
 	Vertex												platformVerts[6];
@@ -43,9 +55,11 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pCubeVertexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pPattyVertexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pFloorVertexBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pTeapotVertexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pCubeIndexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pPattyIndexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pFloorIndexBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pTeapotIndexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pConstMatrixBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pConstMaterialBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>				m_pConstLightBuffer = nullptr;
@@ -59,6 +73,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_pRtv = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pCubeSrv = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pPattySrv = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_pTeapotSrv = nullptr;
 
 	//Resources
 	Microsoft::WRL::ComPtr<ID3D11Resource>				m_pResource = nullptr;
@@ -66,6 +81,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pDepthStencil = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pBrickTexture = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pPattyTexture = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_pTeapotTexture = nullptr;
 
 	//Depth stencil
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState>		m_pDepthStencilState = nullptr;
@@ -78,8 +94,8 @@ public:
 	void DirectXRun();
 	void ResizeUpdate(HWND _window);
 	void DX11Setup(HWND _window);
-	void DrawCube();
-	void DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &_iBuffer, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> &_srv, XMMATRIX &_mat, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds);
+	void DrawCube(MaterialProperties _material);
+	void DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &_iBuffer, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> &_srv, XMMATRIX &_mat, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds, MaterialProperties _material);
 	void AdjZoomAndNearFarCheck(float _angleVal, float _nearFarVal);
 	void LightSetup(XMFLOAT3 _pos, XMVECTORF32 _color, unsigned int _type, XMFLOAT3 _CLQAttenuation, float _spotAngle, unsigned int _slot);
 	void CameraSetup(XMVECTOR _eyePos, XMVECTOR _focusPos, XMVECTOR _upDir);

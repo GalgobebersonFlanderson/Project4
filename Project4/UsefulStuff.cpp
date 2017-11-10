@@ -93,17 +93,17 @@ void UsefulStuff::GenerateCubeVertsAndIndices(Vertex _vertsArr[24], float _depth
 		temp = indArr[i];
 
 		if (temp == 0 || temp == 1 || temp == 3 || temp == 5)
-			_vertsArr[temp].normals = XMFLOAT3(0.0f, 0.0f, -1.0f);
+			_vertsArr[temp].normals = XMFLOAT3(0.0f, 0.0f, -1.0f);	//Front Face
 		else if (temp == 7 || temp == 15 || temp == 9 || temp == 6)
-			_vertsArr[temp].normals = XMFLOAT3(-1.0f, 0.0f, 0.0f);
+			_vertsArr[temp].normals = XMFLOAT3(-1.0f, 0.0f, 0.0f);	//Left Face
 		else if (temp == 8 || temp == 16 || temp == 11 || temp == 2)
-			_vertsArr[temp].normals = XMFLOAT3(0.0f, 1.0f, 0.0f);
+			_vertsArr[temp].normals = XMFLOAT3(0.0f, 1.0f, 0.0f);	//Top Face
 		else if (temp == 23 || temp == 21 || temp == 13 || temp == 17)
-			_vertsArr[temp].normals = XMFLOAT3(0.0f, 0.0f, 1.0f);
+			_vertsArr[temp].normals = XMFLOAT3(0.0f, 0.0f, 1.0f);	//Back Face
 		else if (temp == 14 || temp == 4 || temp == 19 || temp == 22)
-			_vertsArr[temp].normals = XMFLOAT3(0.0f, -1.0f, 0.0f);
+			_vertsArr[temp].normals = XMFLOAT3(0.0f, -1.0f, 0.0f);	//Bottom Face
 		else if (temp == 10 || temp == 18 || temp == 20 || temp == 12)
-			_vertsArr[temp].normals = XMFLOAT3(1.0f, 0.0f, 0.0f);
+			_vertsArr[temp].normals = XMFLOAT3(1.0f, 0.0f, 0.0f);	//Right Face
 	}
 
 	//UV
