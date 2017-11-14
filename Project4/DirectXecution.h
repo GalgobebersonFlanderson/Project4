@@ -97,7 +97,7 @@ public:
 	void DrawCube(MaterialProperties _material);
 	void DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &_iBuffer, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> &_srv, XMMATRIX &_mat, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds, MaterialProperties _material);
 	void AdjZoomAndNearFarCheck(float _angleVal, float _nearFarVal);
-	void LightSetup(XMFLOAT3 _pos, XMVECTORF32 _color, unsigned int _type, XMFLOAT3 _CLQAttenuation, float _spotAngle, unsigned int _slot);
+	void LightSetup(XMFLOAT3 _pos, XMFLOAT3 _dir, XMVECTORF32 _color, unsigned int _type, XMFLOAT3 _CLQAttenuation, float _spotAngle, unsigned int _slot);
 	void CameraSetup(XMVECTOR _eyePos, XMVECTOR _focusPos, XMVECTOR _upDir);
 	HRESULT CreateVertexBuffer();
 	HRESULT CreateVertexBuffer(std::vector<VertexOBJ> &_vertVect, Microsoft::WRL::ComPtr<ID3D11Buffer> &_buffer);

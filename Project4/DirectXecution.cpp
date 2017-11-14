@@ -49,7 +49,7 @@ void DirectXecution::DirectXInit(HWND _window)
 	//Create texture
 	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"bricks.dds", (ID3D11Resource**)m_pBrickTexture.GetAddressOf(), m_pCubeSrv.GetAddressOf());
 	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Krabby Patty/krabbypattie01.dds", (ID3D11Resource**)m_pPattyTexture.GetAddressOf(), m_pPattySrv.GetAddressOf());
-	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Teapot/teapotmat.dds", (ID3D11Resource**)m_pPattyTexture.GetAddressOf(), m_pTeapotSrv.GetAddressOf());
+	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Teapot/teapotmat2.dds", (ID3D11Resource**)m_pPattyTexture.GetAddressOf(), m_pTeapotSrv.GetAddressOf());
 
 	//Create stencil
 	result = CreateDepthStencil();
@@ -96,11 +96,11 @@ void DirectXecution::DirectXInit(HWND _window)
 	pattyMaterial.material.useTexture = true;
 	pattyMaterial.material.specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	teapotMaterial.material.useTexture = true;
-	teapotMaterial.material.specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	teapotMaterial.material.specular = XMFLOAT4(2.0f, 2.0f, 2.0f, 1.0f);
 
 	//Set light and button stuff
-	pLight = XMFLOAT3(0.0f, 1.5f, 0.0f);
-	sLight = XMFLOAT3(0.0f, 1.5f, 0.0f);
+	pLight = XMFLOAT3(3.0f, 0.8f, 0.0f);
+	sLight = XMFLOAT3(6.0f, 2.2f, 0.0f);
 	dLight = XMFLOAT3(0.0f, 2.8f, 0.0f);
 	buttonLength = 0.25f;
 
@@ -122,14 +122,14 @@ void DirectXecution::DirectXRun()
 	else
 		emissiveVal -= 0.001f;
 
-	teapotMaterial.material.emissive = XMFLOAT4(emissiveVal, emissiveVal, emissiveVal, 1.0f);
+	//teapotMaterial.material.emissive = XMFLOAT4(emissiveVal, emissiveVal, emissiveVal, 1.0f);
 
 	//Light toggle stuff
 	buttonTimer += (float)timer.Delta();
 
 	if (GetAsyncKeyState('1') && !lightProperties.lights[0].enabled && buttonTimer > buttonLength)
 	{
-		LightSetup(pLight, Colors::Green, PointLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 25.0f, 0);
+		LightSetup(pLight, XMFLOAT3(0.0f, 0.0f, 0.0f), Colors::Green, PointLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 25.0f, 0);
 		buttonTimer = 0.0f;
 	}
 	else if (GetAsyncKeyState('1') && lightProperties.lights[0].enabled && buttonTimer > buttonLength)
@@ -139,7 +139,7 @@ void DirectXecution::DirectXRun()
 	}
 	if (GetAsyncKeyState('2') && !lightProperties.lights[1].enabled && buttonTimer > buttonLength)
 	{
-		LightSetup(sLight, Colors::Red, SpotLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 25.0f, 1);
+		LightSetup(sLight, XMFLOAT3(0.0f, -1.0f, 0.0f), Colors::Red, SpotLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 25.0f, 1);
 		buttonTimer = 0.0f;
 	}
 	else if (GetAsyncKeyState('2') && lightProperties.lights[1].enabled && buttonTimer > buttonLength)
@@ -149,7 +149,7 @@ void DirectXecution::DirectXRun()
 	}
 	if (GetAsyncKeyState('3') && !lightProperties.lights[2].enabled && buttonTimer > buttonLength)
 	{
-		LightSetup(dLight, Colors::Blue, DirectionalLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 0, 2);
+		LightSetup(dLight, XMFLOAT3(0.0f, -1.0f, 0.0f), Colors::Blue, DirectionalLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 0, 2);
 		buttonTimer = 0.0f;
 	}
 	else if (GetAsyncKeyState('3') && lightProperties.lights[2].enabled && buttonTimer > buttonLength)
@@ -237,17 +237,8 @@ void DirectXecution::ResizeUpdate(HWND _window)
 	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
 
 	//Resource
-	depthStencilDesc.ArraySize = 1;
-	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthStencilDesc.CPUAccessFlags = NULL;
-	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	depthStencilDesc.Height = height;
 	depthStencilDesc.Width = width;
-	depthStencilDesc.MipLevels = 1;
-	depthStencilDesc.MiscFlags = NULL;
-	depthStencilDesc.SampleDesc.Count = 4;
-	depthStencilDesc.SampleDesc.Quality = 0;
-	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
 
 	//View
 	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -612,7 +603,7 @@ void DirectXecution::AdjZoomAndNearFarCheck(float _angleVal, float _nearFarVal)
 	}
 }
 
-void DirectXecution::LightSetup(XMFLOAT3 _pos, XMVECTORF32 _color, unsigned int _type, XMFLOAT3 _CLQAttenuation, float _spotAngle, unsigned int _slot)
+void DirectXecution::LightSetup(XMFLOAT3 _pos, XMFLOAT3 _dir, XMVECTORF32 _color, unsigned int _type, XMFLOAT3 _CLQAttenuation, float _spotAngle, unsigned int _slot)
 {
 	Light light;
 	light.enabled = true;
@@ -622,7 +613,7 @@ void DirectXecution::LightSetup(XMFLOAT3 _pos, XMVECTORF32 _color, unsigned int 
 	light.attenuation = { _CLQAttenuation.x, _CLQAttenuation.y, _CLQAttenuation.z };
 	XMFLOAT4 LightPos = XMFLOAT4(_pos.x, _pos.y, _pos.z, 1.0f);
 	light.pos = LightPos;
-	XMVECTOR LightDir = XMVectorSet(-LightPos.x, -LightPos.y, -LightPos.z, 0.0f);
+	XMVECTOR LightDir = XMVectorSet(_dir.x, _dir.y, _dir.z, 0.0f);
 	XMStoreFloat4(&light.dir, LightDir);
 
 	lightProperties.lights[_slot] = light;
