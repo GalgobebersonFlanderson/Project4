@@ -27,10 +27,10 @@ OUTPUT_VERTEX main(INPUT_VERTEX input)
 	float4x4 finalMat;
 
 	OUTPUT_VERTEX output;
-    output.positionWS = mul(worldMatrix, float4(input.position, 1.0f));
+    output.positionWS = mul(float4(input.position, 1.0f), worldMatrix);
 	output.position = float4(input.position, 1.0f);
     output.normals = float4(input.normals, 0.0f);
-	finalMat = mul(worldMatrix, viewMatrix);
+    finalMat = mul(worldMatrix, viewMatrix);
 	finalMat = mul(finalMat, projectionMatrix);
 
 	output.position = mul(output.position, finalMat);

@@ -26,6 +26,7 @@ void DirectXecution::DirectXInit(HWND _window)
 	bResult = utility.LoadOBJFile("Krabby Patty/krabbypattie01.obj", pattyVerts, pattyInds);
 	bResult = utility.LoadOBJFile("Floor/floor.obj", floorVerts, floorInds);
 	bResult = utility.LoadOBJFile("Teapot/teapot.obj", teapotVerts, teapotInds);
+	bResult = utility.LoadOBJFile("Skybox/skybox.obj", skyboxVerts, skyboxInds);
 
 	//Cube setup
 	cubeRect.left = -0.5f;
@@ -49,7 +50,9 @@ void DirectXecution::DirectXInit(HWND _window)
 	//Create texture
 	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"bricks.dds", (ID3D11Resource**)m_pBrickTexture.GetAddressOf(), m_pCubeSrv.GetAddressOf());
 	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Krabby Patty/krabbypattie01.dds", (ID3D11Resource**)m_pPattyTexture.GetAddressOf(), m_pPattySrv.GetAddressOf());
-	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Teapot/teapotmat2.dds", (ID3D11Resource**)m_pPattyTexture.GetAddressOf(), m_pTeapotSrv.GetAddressOf());
+	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Teapot/teapotmat.dds", (ID3D11Resource**)m_pPattyTexture.GetAddressOf(), m_pTeapotSrv.GetAddressOf());
+	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Floor/floormat.dds", (ID3D11Resource**)m_pFloorTexture.GetAddressOf(), m_pFloorSrv.GetAddressOf());
+	result = CreateDDSTextureFromFile(m_pDevice.Get(), L"Skybox/SkyboxOcean.dds", (ID3D11Resource**)m_pSkyboxTexture.GetAddressOf(), m_pSkyboxSrv.GetAddressOf());
 
 	//Create stencil
 	result = CreateDepthStencil();
@@ -67,6 +70,8 @@ void DirectXecution::DirectXInit(HWND _window)
 	result = CreateIndexBuffer(floorInds, m_pFloorIndexBuffer);
 	result = CreateVertexBuffer(teapotVerts, m_pTeapotVertexBuffer);
 	result = CreateIndexBuffer(teapotInds, m_pTeapotIndexBuffer);
+	result = CreateVertexBuffer(skyboxVerts, m_pSkyboxVertexBuffer);
+	result = CreateIndexBuffer(skyboxInds, m_pSkyboxIndexBuffer);
 	result = CreateConstBuffer(MatrixBuffer, m_pConstMatrixBuffer);
 	result = CreateConstBuffer(MaterialBuffer, m_pConstMaterialBuffer);
 	result = CreateConstBuffer(LightBuffer, m_pConstLightBuffer);
@@ -74,7 +79,10 @@ void DirectXecution::DirectXInit(HWND _window)
 	//Create shaders
 	result = m_pDevice->CreateVertexShader(VertexShader, sizeof(VertexShader), NULL, m_pCubeVertShader.GetAddressOf());
 	result = m_pDevice->CreateVertexShader(objVertexShader, sizeof(objVertexShader), NULL, m_pObjVertShader.GetAddressOf());
+	result = m_pDevice->CreateVertexShader(SkyboxVertexShader, sizeof(SkyboxVertexShader), NULL, m_pSkyboxVertShader.GetAddressOf());
+	result = m_pDevice->CreateVertexShader(InstancedVertexShader, sizeof(InstancedVertexShader), NULL, m_pInstancedVertShader.GetAddressOf());
 	result = m_pDevice->CreatePixelShader(PixelShader, sizeof(PixelShader), NULL, m_pPixelShader.GetAddressOf());
+	result = m_pDevice->CreatePixelShader(SkyboxPixelShader, sizeof(SkyboxPixelShader), NULL, m_pSkyboxPixelShader.GetAddressOf());
 
 	//Create RTV
 	result = m_pSwapChain->GetBuffer(NULL, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(m_pBackBufferTexture.GetAddressOf()));
@@ -91,18 +99,22 @@ void DirectXecution::DirectXInit(HWND _window)
 
 	//Set materials
 	cubeMaterial.material.useTexture = true;
+	cubeMaterial.material.specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	floorMaterial.material.useTexture = true;
 	floorMaterial.material.specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	pattyMaterial.material.useTexture = true;
 	pattyMaterial.material.specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	teapotMaterial.material.useTexture = true;
 	teapotMaterial.material.specular = XMFLOAT4(2.0f, 2.0f, 2.0f, 1.0f);
+	skyboxMaterial.material.useTexture = true;
 
 	//Set light and button stuff
-	pLight = XMFLOAT3(3.0f, 0.8f, 0.0f);
-	sLight = XMFLOAT3(6.0f, 2.2f, 0.0f);
+	pLight = XMFLOAT3(0.0f, 1.9f, 2.0f);
+	sLight = XMFLOAT3(0.5f, 2.2f, 0.0f);
 	dLight = XMFLOAT3(0.0f, 2.8f, 0.0f);
 	buttonLength = 0.25f;
+	lightProperties.globalAmbient = XMFLOAT4(5.0f, 5.0f, 5.0f, 1.0f);
+	//lightProperties.globalAmbient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
 
 	buttonTimer += buttonLength;
 }
@@ -122,7 +134,7 @@ void DirectXecution::DirectXRun()
 	else
 		emissiveVal -= 0.001f;
 
-	//teapotMaterial.material.emissive = XMFLOAT4(emissiveVal, emissiveVal, emissiveVal, 1.0f);
+	teapotMaterial.material.emissive = XMFLOAT4(emissiveVal, emissiveVal, emissiveVal, 1.0f);
 
 	//Light toggle stuff
 	buttonTimer += (float)timer.Delta();
@@ -158,9 +170,11 @@ void DirectXecution::DirectXRun()
 		buttonTimer = 0.0f;
 	}
 
-	//Camera update
+	//Camera update and setting skybox to camera
 	utility.UpdateCamera(camera, (float)timer.Delta(), 5.0f, 5.0f);
 
+	skyboxMat = utility.Translate(XMFLOAT3(camera._41, camera._42, camera._43), 0, skyboxMat, false);
+	
 	//Rotating stuff
 	cubeMat = utility.Rotate(XMFLOAT3(1.0f, 1.0f, 1.0f), (float)timer.Delta(), cubeMat);
 	pattyMat = utility.Rotate(XMFLOAT3(0.0f, 1.0f, 0.0f), (float)timer.Delta(), pattyMat);
@@ -198,10 +212,12 @@ void DirectXecution::DirectXRun()
 	m_pContext->UpdateSubresource(m_pConstLightBuffer.Get(), 0, nullptr, &lightProperties, 0, 0);
 
 	//Draw calls
+	DrawOBJ(m_pSkyboxVertexBuffer, m_pSkyboxIndexBuffer, m_pSkyboxVertShader, m_pSkyboxPixelShader, m_pSkyboxSrv, skyboxMat, skyboxVerts, skyboxInds, skyboxMaterial);
+	m_pContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	DrawCube(cubeMaterial);
-	DrawOBJ(m_pPattyVertexBuffer, m_pPattyIndexBuffer, m_pPattySrv, pattyMat, pattyVerts, pattyInds, pattyMaterial);
-	DrawOBJ(m_pFloorVertexBuffer, m_pFloorIndexBuffer, m_pCubeSrv, floorMat, floorVerts, floorInds, floorMaterial);
-	DrawOBJ(m_pTeapotVertexBuffer, m_pTeapotIndexBuffer, m_pTeapotSrv, teapotMat, teapotVerts, teapotInds, teapotMaterial);
+	DrawOBJ(m_pPattyVertexBuffer, m_pPattyIndexBuffer, m_pObjVertShader, m_pPixelShader, m_pPattySrv, pattyMat, pattyVerts, pattyInds, pattyMaterial);
+	DrawOBJ(m_pFloorVertexBuffer, m_pFloorIndexBuffer, m_pObjVertShader, m_pPixelShader, m_pFloorSrv, floorMat, floorVerts, floorInds, floorMaterial);
+	DrawOBJ(m_pTeapotVertexBuffer, m_pTeapotIndexBuffer, m_pObjVertShader, m_pPixelShader, m_pTeapotSrv, teapotMat, teapotVerts, teapotInds, teapotMaterial);
 
 	//Display stuff on screen
 	m_pSwapChain->Present(0, 0);
@@ -210,14 +226,15 @@ void DirectXecution::DirectXRun()
 void DirectXecution::ResizeUpdate(HWND _window)
 {
 	RECT windowRect;
-	unsigned int width, height;
 
 	GetClientRect(_window, &windowRect);
-	width = windowRect.right - windowRect.left;
-	height = windowRect.bottom - windowRect.top;
+	width = (float)(windowRect.right - windowRect.left);
+	height = (float)(windowRect.bottom - windowRect.top);
 
+	m_pContext->OMSetRenderTargets(0, nullptr, nullptr);
 	m_pRtv.Reset();
 	m_pDepthStencil.Reset();
+	m_pBackBufferTexture.Reset();
 	result = m_pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
 
 	//Create viewport
@@ -237,12 +254,37 @@ void DirectXecution::ResizeUpdate(HWND _window)
 	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
 
 	//Resource
-	depthStencilDesc.Height = height;
-	depthStencilDesc.Width = width;
+	depthStencilDesc.ArraySize = 1;
+	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilDesc.CPUAccessFlags = NULL;
+	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilDesc.Height = (UINT)height;
+	depthStencilDesc.Width = (UINT)width;
+	depthStencilDesc.MipLevels = 1;
+	depthStencilDesc.MiscFlags = NULL;
+	depthStencilDesc.SampleDesc.Count = 4;
+	depthStencilDesc.SampleDesc.Quality = 0;
+	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+
+	//State
+	depthStencilStateDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	depthStencilStateDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilStateDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	depthStencilStateDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilStateDesc.DepthEnable = true;
+	depthStencilStateDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilStateDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	depthStencilStateDesc.StencilEnable = true;
+	depthStencilStateDesc.StencilReadMask = 0xFF;
+	depthStencilStateDesc.StencilWriteMask = 0xFF;
+	depthStencilStateDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilStateDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthStencilStateDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilStateDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 	//View
 	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 
 	//Create RTV
@@ -254,9 +296,6 @@ void DirectXecution::ResizeUpdate(HWND _window)
 	result = m_pDevice->CreateTexture2D(&depthStencilDesc, NULL, m_pDepthStencil.GetAddressOf());
 	result = m_pDevice->CreateDepthStencilState(&depthStencilStateDesc, m_pDepthStencilState.GetAddressOf());
 	result = m_pDevice->CreateDepthStencilView(m_pDepthStencil.Get(), &depthStencilViewDesc, m_pDepthStencilView.GetAddressOf());
-
-	//Reset camera
-	DirectX::XMStoreFloat4x4(&vramData.projMat, DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(55.0f), (float)width / (float)height, 0.1f, 100.0f)));
 }
 
 //For self-made cube
@@ -525,7 +564,7 @@ void DirectXecution::DrawCube(MaterialProperties _material)
 	m_pContext->DrawIndexed(ARRAYSIZE(cubeInd), 0, 0);
 }
 
-void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &_iBuffer, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> &_srv, XMMATRIX &_mat, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds, MaterialProperties _material)
+void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &_iBuffer, Microsoft::WRL::ComPtr<ID3D11VertexShader> &_vertShader, Microsoft::WRL::ComPtr<ID3D11PixelShader> &_pixShader, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> &_srv, XMMATRIX &_mat, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds, MaterialProperties _material)
 {
 	UINT objVertStride = sizeof(VertexOBJ);
 	UINT objVertOffset = 0;
@@ -545,8 +584,8 @@ void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Mic
 	m_pContext->IASetInputLayout(m_pObjInputLayout.Get());
 
 	//Binding shaders
-	m_pContext->VSSetShader(m_pObjVertShader.Get(), 0, 0);
-	m_pContext->PSSetShader(m_pPixelShader.Get(), 0, 0);
+	m_pContext->VSSetShader(_vertShader.Get(), 0, 0);
+	m_pContext->PSSetShader(_pixShader.Get(), 0, 0);
 
 	//Binding SRV
 	if (_srv != nullptr)
@@ -555,6 +594,42 @@ void DirectXecution::DrawOBJ(Microsoft::WRL::ComPtr<ID3D11Buffer> &_vBuffer, Mic
 	m_pContext->IASetVertexBuffers(0, 1, _vBuffer.GetAddressOf(), &objVertStride, &objVertOffset);
 	m_pContext->IASetIndexBuffer(_iBuffer.Get(), DXGI_FORMAT_R32_UINT, objIndOffset);
 	m_pContext->DrawIndexed((UINT)_inds.size(), 0, 0);
+}
+
+void DirectXecution::DrawOBJInstanced(Microsoft::WRL::ComPtr<ID3D11Buffer>& _vBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer>& _iBuffer, Microsoft::WRL::ComPtr<ID3D11VertexShader>& _vertShader, Microsoft::WRL::ComPtr<ID3D11PixelShader>& _pixShader, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& _srv, XMMATRIX _mat[], unsigned int _matSize, std::vector<VertexOBJ> _verts, std::vector<unsigned int> _inds, MaterialProperties _material)
+{
+	UINT objVertStride = sizeof(VertexOBJ);
+	UINT objVertOffset = 0;
+	UINT objIndOffset = 0;
+
+	//Sending matrix
+	for (unsigned int i = 0; i < _matSize; ++i)
+	{
+		DirectX::XMStoreFloat4x4(&vramDataInstanced.worldMat[i], _mat[i]);
+	}
+
+	m_pContext->UpdateSubresource(m_pConstMatrixBuffer.Get(), 0, NULL, &vramDataInstanced, 0, 0);
+
+	//Send material
+	m_pContext->UpdateSubresource(m_pConstMaterialBuffer.Get(), 0, nullptr, &_material, 0, 0);
+
+	//Binding topology
+	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//Binding input layout
+	m_pContext->IASetInputLayout(m_pObjInputLayout.Get());
+
+	//Binding shaders
+	m_pContext->VSSetShader(_vertShader.Get(), 0, 0);
+	m_pContext->PSSetShader(_pixShader.Get(), 0, 0);
+
+	//Binding SRV
+	if (_srv != nullptr)
+		m_pContext->PSSetShaderResources(0, 1, _srv.GetAddressOf());
+
+	m_pContext->IASetVertexBuffers(0, 1, _vBuffer.GetAddressOf(), &objVertStride, &objVertOffset);
+	m_pContext->IASetIndexBuffer(_iBuffer.Get(), DXGI_FORMAT_R32_UINT, objIndOffset);
+	m_pContext->DrawIndexedInstanced((UINT)_inds.size(), _matSize, 0, 0, 0);
 }
 
 void DirectXecution::AdjZoomAndNearFarCheck(float _angleVal, float _nearFarVal)

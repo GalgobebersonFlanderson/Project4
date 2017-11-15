@@ -92,5 +92,14 @@
     <FxCompile Include="objVertexShader.hlsl">
       <Filter>HLSL Files</Filter>
     </FxCompile>
+    <FxCompile Include="SkyboxPixelShader.hlsl">
+      <Filter>HLSL Files</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyboxVertexShader.hlsl">
+      <Filter>HLSL Files</Filter>
+    </FxCompile>
+    <FxCompile Include="InstancedVertexShader.hlsl">
+      <Filter>HLSL Files</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

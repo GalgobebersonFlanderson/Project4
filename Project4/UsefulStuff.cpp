@@ -211,12 +211,22 @@ void UsefulStuff::UpdateCamera(XMFLOAT4X4 &_camera, float const &_timer, const f
 	XMStoreFloat4x4(&_camera, XMLoadFloat4x4(&temp_cam));
 }
 
-XMMATRIX UsefulStuff::Translate(XMFLOAT3 _xyz, float _delta, XMMATRIX _mat)
+XMMATRIX UsefulStuff::Translate(XMFLOAT3 _xyz, float _delta, XMMATRIX _mat, bool _multi)
 {
 	if (_delta != 0)
-		_mat *= XMMatrixTranspose(XMMatrixTranslation(_xyz.x * _delta, _xyz.y * _delta, _xyz.z * _delta));
+	{
+		if (_multi == true)
+			_mat *= XMMatrixTranspose(XMMatrixTranslation(_xyz.x * _delta, _xyz.y * _delta, _xyz.z * _delta));
+		else
+			_mat = XMMatrixTranspose(XMMatrixTranslation(_xyz.x * _delta, _xyz.y * _delta, _xyz.z * _delta));
+	}
 	else
-		_mat *= XMMatrixTranspose(XMMatrixTranslation(_xyz.x, _xyz.y, _xyz.z));
+	{
+		if (_multi == true)
+			_mat *= XMMatrixTranspose(XMMatrixTranslation(_xyz.x, _xyz.y, _xyz.z));
+		else
+			_mat = XMMatrixTranspose(XMMatrixTranslation(_xyz.x, _xyz.y, _xyz.z));
+	}
 
 	return _mat;
 }

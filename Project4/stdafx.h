@@ -20,8 +20,11 @@
 #include "Project4.h"
 #include "d3d11.h"
 #include "PixelShader.csh"
+#include "SkyboxPixelShader.csh"
 #include "VertexShader.csh"
 #include "objVertexShader.csh"
+#include "SkyboxVertexShader.csh"
+#include "InstancedVertexShader.csh"
 #include <DirectXColors.h>
 #include "Defines.h"
 
@@ -48,6 +51,13 @@ struct VertexOBJ
 struct Send_To_VRAM
 {
 	DirectX::XMFLOAT4X4 worldMat;
+	DirectX::XMFLOAT4X4 viewMat;
+	DirectX::XMFLOAT4X4 projMat;
+};
+
+struct Send_To_VRAM_Instanced
+{
+	DirectX::XMFLOAT4X4 worldMat[4];
 	DirectX::XMFLOAT4X4 viewMat;
 	DirectX::XMFLOAT4X4 projMat;
 };
@@ -108,7 +118,7 @@ struct LightProperties
 {
 	LightProperties()
 		: eyePos(0.0f, 0.0f, 0.0f, 1.0f)
-		, globalAmbient(0.2f, 0.2f, 0.8f, 1.0f)
+		, globalAmbient(0.5f, 0.5f, 0.5f, 1.0f)
 	{}
 
 	DirectX::XMFLOAT4 eyePos;
