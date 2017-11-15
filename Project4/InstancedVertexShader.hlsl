@@ -8,6 +8,7 @@ cbuffer MatrixBuffer : register(b0)
 struct INPUT_VERTEX
 {
     float3 position : POSITION;
+    float4 color : COLOR;
     float3 normals : NORMALS;
     float2 uv : UV;
     uint instanceId : SV_InstanceID;
@@ -36,7 +37,7 @@ OUTPUT_VERTEX main(INPUT_VERTEX input)
 
     output.position = mul(output.position, finalMat);
     output.normals = mul(output.normals, worldMatrix[input.instanceId]);
-    output.color = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    output.color = input.color;
     output.uv = input.uv;
     output.instanceId = input.instanceId;
     return output;

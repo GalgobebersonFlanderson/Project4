@@ -30,7 +30,7 @@
 
 //Enums
 enum LightType { DirectionalLight, PointLight, SpotLight };
-enum ConstBufferStruct { MatrixBuffer, MaterialBuffer, LightBuffer };
+enum ConstBufferStruct { MatrixBuffer, MaterialBuffer, LightBuffer, InstancedMatrixBuffer };
 
 // Structures
 struct Vertex
