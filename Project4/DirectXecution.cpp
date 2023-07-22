@@ -182,7 +182,7 @@ void DirectXecution::DirectXRun()
 	LightToggleStuff();
 
 	//Camera update and setting skybox to camera
-	utility.UpdateCamera(camera, (float)timer.Delta(), 5.0f, 5.0f);
+	utility.UpdateCamera(camera, (float)timer.Delta(), 5.0f, 1.0f);
 	skyboxMat = utility.Translate(XMFLOAT3(camera._41, camera._42, camera._43), 0, skyboxMat, false);
 	
 	//Rotating stuff
@@ -234,7 +234,7 @@ void DirectXecution::DirectXRun()
 	DrawCubeInstanced(cubeMats, ARRAYSIZE(cubeMats), cubeMaterial);
 
 	//Display stuff on screen
-	m_pSwapChain->Present(0, 0);
+	m_pSwapChain->Present(1, 0);
 }
 
 void DirectXecution::ResizeUpdate(HWND _window)
@@ -673,35 +673,9 @@ void DirectXecution::AdjZoomAndNearFarCheck(float _angleVal, float _nearFarVal)
 			angleY += _angleVal;
 	}
 
-	if (GetAsyncKeyState('C') & 0x1)
-	{
-		if (nearP > 0.1f)
-			nearP -= _nearFarVal;
-	}
-
-	if (GetAsyncKeyState('V') & 0x1)
-	{
-		if (nearP < 50.f)
-			nearP += _nearFarVal;
-	}
-
-	if (GetAsyncKeyState('B') & 0x1)
-	{
-		if (farP > 75.0f)
-			farP -= _nearFarVal;
-	}
-
-	if (GetAsyncKeyState('N') & 0x1)
-	{
-		if (farP < 150.0f)
-			farP += _nearFarVal;
-	}
-
-	if (GetAsyncKeyState('R'))
+	if (GetAsyncKeyState('R') && GetAsyncKeyState(VK_LSHIFT))
 	{
 		angleY = 55.0f;
-		nearP = 0.1f;
-		farP = 100.0f;
 	}
 }
 
@@ -736,6 +710,7 @@ void DirectXecution::LightToggleStuff()
 	}
 	else if (GetAsyncKeyState('1') && lightProperties.lights[DirectionalLight].enabled && buttonTimer > buttonLength)
 	{
+		LightSetup(dLight, XMFLOAT3(0.0f, 0.0f, 0.0f), Colors::Transparent, DirectionalLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 25.0f, 0);
 		lightProperties.lights[DirectionalLight].enabled = false;
 		buttonTimer = 0.0f;
 	}
@@ -746,6 +721,7 @@ void DirectXecution::LightToggleStuff()
 	}
 	else if (GetAsyncKeyState('2') && lightProperties.lights[PointLight].enabled && buttonTimer > buttonLength)
 	{
+		LightSetup(pLight, XMFLOAT3(0.0f, -1.0f, 0.0f), Colors::Transparent, PointLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 25.0f, 1);
 		lightProperties.lights[PointLight].enabled = false;
 		buttonTimer = 0.0f;
 	}
@@ -756,6 +732,7 @@ void DirectXecution::LightToggleStuff()
 	}
 	else if (GetAsyncKeyState('3') && lightProperties.lights[SpotLight].enabled && buttonTimer > buttonLength)
 	{
+		LightSetup(sLightPos, sLightDir, Colors::Transparent, SpotLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 45.0f, 2);
 		lightProperties.lights[SpotLight].enabled = false;
 		buttonTimer = 0.0f;
 	}
@@ -775,6 +752,8 @@ void DirectXecution::LightToggleStuff()
 			--pLight.y;
 		else if (GetAsyncKeyState('U') & 0x1)
 			++pLight.y;
+		else if (GetAsyncKeyState('R') & 0x1)
+			pLight = XMFLOAT3(0.0f, 3.0f, 0.0f);
 
 		LightSetup(pLight, XMFLOAT3(0.0, 0.0f, 0.0f), Colors::Green, PointLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 25.0f, 1);
 	}
@@ -793,6 +772,8 @@ void DirectXecution::LightToggleStuff()
 			--dLight.y;
 		else if (GetAsyncKeyState('U') & 0x1)
 			++dLight.y;
+		else if (GetAsyncKeyState('R') & 0x1)
+			dLight = XMFLOAT3(0.0f, -5.0f, 0.0f);
 
 		LightSetup(XMFLOAT3(0.0, 0.0f, 0.0f), dLight, Colors::Cyan, DirectionalLight, XMFLOAT3(1.0f, 0.08f, 0.0f), 25.0f, 0);
 	}
@@ -811,6 +792,11 @@ void DirectXecution::LightToggleStuff()
 			--sLightPos.y;
 		else if (GetAsyncKeyState('U') & 0x1)
 			++sLightPos.y;
+		else if (GetAsyncKeyState('R') & 0x1)
+		{
+			sLightPos = XMFLOAT3(0.0f, 2.0f, 0.0f);
+			sLightDir = XMFLOAT3(-sLightPos.x, -sLightPos.y, -sLightPos.z);
+		}
 
 		if (GetAsyncKeyState(VK_NUMPAD8) & 0x1)
 			--sLightDir.z;

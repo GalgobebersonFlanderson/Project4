@@ -125,13 +125,9 @@ LightResult ComputeLighting(float4 pointShade, float3 surfaceNorm)
  
     LightResult totalResult = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 } };
  
-    [unroll]
     for (int i = 0; i < 3; ++i)
     {
         LightResult result = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 } };
- 
-        if (!lights[i].enabled)
-            continue;
          
         switch (lights[i].lightType)
         {
